@@ -1,0 +1,57 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: dsmrt
+ * Date: 2/6/18
+ * Time: 9:48 PM
+ */
+
+namespace flipbox\keychain\keypair\traits;
+
+
+trait OpenSSL
+{
+    public $startNoticeText = <<<EOF
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter ' . ', the field will be left blank.
+EOF;
+
+    public $labels = [
+        'countryName'            => 'Country Name (2 letter code)',
+        'stateOrProvinceName'    => 'State or Province Name (full name)',
+        'localityName'           => 'Locality Name (eg, city)',
+        'organizationName'       => 'Organization Name (eg, company)',
+        'organizationalUnitName' => 'Organizational Unit Name (eg, section)',
+        'commonName'             => 'Common Name (eg, fully qualified host name)',
+        'emailAddress'           => 'Email Address',
+    ];
+
+    public $attributes = [
+        'countryName'            => [
+            'default' => 'US',
+        ],
+        'stateOrProvinceName'    => [
+            'default' => 'Colorado',
+        ],
+        'localityName'           => [
+            'default' => 'Denver',
+        ],
+        'organizationName'       => [
+            'default' => 'Example',
+        ],
+        'organizationalUnitName' => [
+            'default' => 'IT',
+        ],
+        'commonName'             => [
+            'default' => 'example.com',
+        ],
+        'emailAddress'           => [
+            'default' => 'it@example.com',
+        ],
+    ];
+
+}
