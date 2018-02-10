@@ -9,6 +9,10 @@
 namespace flipbox\keychain\keypair\traits;
 
 
+/**
+ * Trait OpenSSL
+ * @package flipbox\keychain\keypair\traits
+ */
 trait OpenSSL
 {
     public $startNoticeText = <<<EOF
@@ -20,6 +24,47 @@ For some fields there will be a default value,
 If you enter ' . ', the field will be left blank.
 EOF;
 
+    /**
+     * @var string
+     *  Country Name (OpenSSL Configuration)
+     */
+    public $countryName = 'US';
+    /**
+     * @var string
+     *  State or Province Name (OpenSSL Configuration)
+     */
+    public $stateOrProvinceName = 'Colorado';
+    /**
+     * @var string
+     *  Locality Name (OpenSSL Configuration)
+     */
+    public $localityName = 'Denver';
+    /**
+     * @var string
+     *  Organization Name (OpenSSL Configuration)
+     */
+    public $organizationName = 'Example';
+    /**
+     * @var string
+     *  Organization Unit Name (OpenSSL Configuration)
+     */
+    public $organizationalUnitName = 'IT';
+    /**
+     * @var string
+     *  Common Name (OpenSSL Configuration)
+     */
+    public $commonName = 'example.com';
+    /**
+     * @var string
+     *  Email (OpenSSL Configuration)
+     */
+    public $emailAddress = 'it@example.com';
+
+    /**
+     * @var string
+     */
+    public $description = 'Tell me what this is for.';
+
     public $labels = [
         'countryName'            => 'Country Name (2 letter code)',
         'stateOrProvinceName'    => 'State or Province Name (full name)',
@@ -28,30 +73,38 @@ EOF;
         'organizationalUnitName' => 'Organizational Unit Name (eg, section)',
         'commonName'             => 'Common Name (eg, fully qualified host name)',
         'emailAddress'           => 'Email Address',
+        'description'            => 'Description',
     ];
 
-    public $attributes = [
-        'countryName'            => [
-            'default' => 'US',
-        ],
-        'stateOrProvinceName'    => [
-            'default' => 'Colorado',
-        ],
-        'localityName'           => [
-            'default' => 'Denver',
-        ],
-        'organizationName'       => [
-            'default' => 'Example',
-        ],
-        'organizationalUnitName' => [
-            'default' => 'IT',
-        ],
-        'commonName'             => [
-            'default' => 'example.com',
-        ],
-        'emailAddress'           => [
-            'default' => 'it@example.com',
-        ],
-    ];
+    public function getAttributes()
+    {
+        return [
+            'countryName'            => [
+                'default' => $this->countryName,
+            ],
+            'stateOrProvinceName'    => [
+                'default' => $this->stateOrProvinceName,
+            ],
+            'localityName'           => [
+                'default' => $this->localityName,
+            ],
+            'organizationName'       => [
+                'default' => $this->organizationName,
+            ],
+            'organizationalUnitName' => [
+                'default' => $this->organizationalUnitName,
+            ],
+            'commonName'             => [
+                'default' => $this->commonName,
+            ],
+            'emailAddress'           => [
+                'default' => $this->emailAddress,
+            ],
+            'description'            => [
+                'default' => $this->description,
+            ],
+        ];
+
+    }
 
 }

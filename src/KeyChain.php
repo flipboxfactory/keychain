@@ -28,6 +28,11 @@ class KeyChain extends Module
     public function init()
     {
         Craft::setAlias('@modules', __DIR__);
+
+        /**
+         * Don't know why I have to do this but I do for craft cli to work.
+         */
+        Craft::setAlias('@flipbox/keychain/controllers', __DIR__ . '/controllers');
         parent::init();
 
         /**

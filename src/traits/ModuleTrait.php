@@ -51,7 +51,7 @@ trait ModuleTrait
     /**
      * @return KeyChain
      */
-    public function getKeyChain()
+    public function getKeyChain() : KeyChain
     {
         return Craft::$app->getModule(KeyChain::MODULE_ID);
     }

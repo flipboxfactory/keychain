@@ -19,6 +19,8 @@ class OpenSSL extends Model implements KeyPairInterface
 
     public $daysExpiry = 365;
 
+    public $description = 'What is this key for?';
+
     public $countryName;
     public $stateOrProvinceName;
     public $localityName;
@@ -65,6 +67,7 @@ class OpenSSL extends Model implements KeyPairInterface
             'key'         => $pkeyout,
             'class' => self::class,
             'settings' => $this->toArray(),
+            'description' => $this->description,
         ]);
     }
 
