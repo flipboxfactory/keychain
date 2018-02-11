@@ -34,4 +34,40 @@ class KeyChainService extends Component
         return $keyPairConfig->create();
     }
 
+    /**
+     * @param KeyChainRecord $record
+     * @todo Support KMS
+     */
+    public function decrypt(KeyChainRecord $record)
+    {
+
+        $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
+            base64_decode($record->key),
+            \Craft::$app->getConfig()->getGeneral()->securityKey
+        );
+        $record->decryptedCertificate = \Craft::$app->getSecurity()->decryptByKey(
+            base64_decode($record->certificate),
+            \Craft::$app->getConfig()->getGeneral()->securityKey
+        );
+    }
+
+    /**
+     * @param KeyChainRecord $record
+     * @todo Support KMS
+     */
+    public function encrypt(KeyChainRecord $record)
+    {
+
+        /**
+         * Encrypt data at rest
+         */
+        $record->key = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
+            $record->key,
+            \Craft::$app->getConfig()->getGeneral()->securityKey
+        ));
+        $record->certificate = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
+            $record->certificate,
+            \Craft::$app->getConfig()->getGeneral()->securityKey
+        ));
+    }
 }
