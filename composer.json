@@ -1,8 +1,8 @@
 {
   "name": "flipboxfactory/keychain",
-  "description": "KeyChain Yii2 Module for CraftCMS",
+  "description": "Key pair management for CraftCMS",
   "version": "1.0.0-beta.1",
-  "type": "library",
+  "type": "craft-plugin",
   "keywords": [
     "cms",
     "craftcms",
@@ -12,7 +12,8 @@
   ],
   "require": {
     "craftcms/cms": "~3.0.0-RC1",
-    "flipboxfactory/craft-ember": "^1.0.0-rc.6"
+    "flipboxfactory/craft-ember": "^1.0.0-rc.6",
+    "lib-openssl": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.0",
@@ -32,7 +33,18 @@
     "email": "support@flipboxfactory.com",
     "issues": "https://github.com/flipboxfactory/keychain/issues?state=open",
     "source": "https://github.com/flipboxfactory/keychain",
-    "docs":   "https://github.com/flipboxfactory/keychain",
-    "rss":    "https://github.com/flipboxfactory/keychain/commits/master.atom"
+    "docs": "https://github.com/flipboxfactory/keychain",
+    "rss": "https://github.com/flipboxfactory/keychain/commits/master.atom"
+  },
+  "extra": {
+    "name": "KeyChain",
+    "version": "1.0.0-beta.1",
+    "schemaVersion": "1.0.0-beta.1",
+    "handle": "keychain",
+    "class": "flipbox\\keychain\\KeyChain",
+    "developer": "Flipbox Digital",
+    "developerUrl": "https://www.flipboxdigital.com",
+    "changelogUrl": "https://raw.githubusercontent.com/flipboxfactory/keychain/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/flipboxfactory/keychain/archive/master.zip"
   }
 }

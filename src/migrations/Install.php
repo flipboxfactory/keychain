@@ -2,12 +2,10 @@
 
 namespace flipbox\keychain\migrations;
 
-use craft\base\Plugin;
 use craft\db\Migration;
 use flipbox\keychain\KeyChain;
 use flipbox\keychain\records\KeyChainRecord;
 use yii\base\InvalidConfigException;
-use yii\base\Module;
 
 /**
  * @author Flipbox Factory <hello@flipboxfactory.com>
@@ -42,24 +40,6 @@ class Install extends Migration
     }
 
     /**
-     * @param Plugin $plugin
-     * @return bool
-     */
-    public function externalSafeDown(Module $module)
-    {
-        $result = false;
-
-        /**
-         * Is anyone else using this table? if not, it can be removed
-         */
-        if (! $this->getModule()->unsetKeyChainModule($module)->isKeyChainInUse()) {
-            $result = $this->safeDown();
-        }
-
-        return $result;
-    }
-
-    /**
      * Creates the tables.
      *
      * @return void
@@ -83,11 +63,11 @@ class Install extends Migration
                 'class'       => $this->string()->notNull(),
                 'settings'    => $this->text(),
                 'enabled'     => $this->boolean()->defaultValue(true)->notNull(),
+                'isEncrypted' => $this->boolean()->defaultValue(true)->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'uid'         => $this->uid()
             ]);
-            $this->addCommentOnTable(KeyChainRecord::tableName(), \Craft::$app->getModule(KeyChain::MODULE_ID)->getVersion());
         }
 
     }
@@ -110,13 +90,5 @@ class Install extends Migration
     protected function addForeignKeys()
     {
 
-    }
-
-    /**
-     * @return KeyChain
-     */
-    protected function getModule()
-    {
-        return \Craft::$app->getModule(KeyChain::MODULE_ID);
     }
 }

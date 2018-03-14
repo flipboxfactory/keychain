@@ -41,14 +41,20 @@ class KeyChainService extends Component
     public function decrypt(KeyChainRecord $record)
     {
 
-        $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
-            base64_decode($record->key),
-            \Craft::$app->getConfig()->getGeneral()->securityKey
-        );
-        $record->decryptedCertificate = \Craft::$app->getSecurity()->decryptByKey(
-            base64_decode($record->certificate),
-            \Craft::$app->getConfig()->getGeneral()->securityKey
-        );
+        if ($record->isEncrypted) {
+            $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
+                base64_decode($record->key),
+                \Craft::$app->getConfig()->getGeneral()->securityKey
+            );
+            $record->decryptedCertificate = \Craft::$app->getSecurity()->decryptByKey(
+                base64_decode($record->certificate),
+                \Craft::$app->getConfig()->getGeneral()->securityKey
+            );
+        } else {
+            $record->decryptedKey = $record->key;
+            $record->decryptedCertificate = $record->certificate;
+        }
+
     }
 
     /**
