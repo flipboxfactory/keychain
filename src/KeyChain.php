@@ -32,7 +32,7 @@ class KeyChain extends Plugin
         /**
          * Don't know why I have to do this but I do for craft cli to work.
          */
-        Craft::setAlias('@flipbox/keychain/controllers', __DIR__ . '/controllers');
+//        Craft::setAlias('@flipbox/keychain/controllers', __DIR__ . '/controllers');
         parent::init();
 
         /**
@@ -91,7 +91,7 @@ class KeyChain extends Plugin
                 'keychain'                 => 'keychain/cp/view/general/index',
                 'keychain/new'             => 'keychain/cp/view/edit/index',
                 'keychain/<keypairId:\d+>' => 'keychain/cp/view/edit/index',
-                'keychain/openssl'             => 'keychain/cp/view/edit/openssl',
+                'keychain/openssl'         => 'keychain/cp/view/edit/openssl',
             ]
         );
     }

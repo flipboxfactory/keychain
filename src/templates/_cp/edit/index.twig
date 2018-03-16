@@ -1,22 +1,7 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 
-{% block actionButton %}
-    <div class="btngroup submit right">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
-
-        <div class="btn submit menubtn"></div>
-        <div class="menu">
-            <ul>
-                <li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
-                        {{ "Save and continue editing"|t('app') }}
-                        {{ forms.optionShortcutLabel('S') }}
-                    </a></li>
-            </ul>
-        </div>
-    </div>
-{% endblock %}
-
+{% set fullPageForm=1 %}
 
 {% block content %}
 
@@ -24,7 +9,7 @@
         <div class="item" data-position="left" data-colspan="2">
 
             <input type="hidden" name="action"
-                   value="{{ baseActionPath }}/{% if keypair.id %}update{% else %}create{% endif %}">
+                   value="{{ baseActionPath }}/upsert">
             {{ redirectInput(baseCpPath) }}
 
             {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}

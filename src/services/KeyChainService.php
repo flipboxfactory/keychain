@@ -20,8 +20,12 @@ class KeyChainService extends Component
      * @param KeyChainRecord $keyChainRecord
      * @return bool
      */
-    public function save(KeyChainRecord $keyChainRecord)
+    public function save(KeyChainRecord $keyChainRecord, $runValidation = true, $attributeNames = null)
     {
+        if(!$runValidation && $keyChainRecord->validate()) {
+            return false;
+        }
+
         return $keyChainRecord->save();
     }
 
@@ -41,7 +45,7 @@ class KeyChainService extends Component
     public function decrypt(KeyChainRecord $record)
     {
 
-        if ($record->isEncrypted) {
+        if ($record->isEncrypted && !$record->isDecrypted) {
             $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
                 base64_decode($record->key),
                 \Craft::$app->getConfig()->getGeneral()->securityKey

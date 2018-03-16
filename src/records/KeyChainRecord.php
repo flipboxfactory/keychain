@@ -28,9 +28,41 @@ class KeyChainRecord extends ActiveRecord
     public $decryptedCertificate;
 
     /**
+     * @var bool
+     * This is how we know if the key and cert has been decrypted
+     */
+    public $isDecrypted = false;
+
+    /**
      * The table alias
      */
     const TABLE_ALIAS = 'keychain';
+
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return array_merge(
+            [
+                ['key', 'isKeyCertAPair']
+            ],
+            parent::rules()
+        );
+    }
+
+    /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     */
+    public function isKeyCertAPair($attribute, $params, $validator)
+    {
+        if (! openssl_x509_check_private_key($this->getDecryptedCertificate(), $this->getDecryptedKey())) {
+            $this->addError($attribute, 'Key and certificate are not a pair.');
+        }
+    }
 
     /**
      * @inheritdoc
@@ -50,6 +82,7 @@ class KeyChainRecord extends ActiveRecord
     {
         if (! $this->decryptedKey) {
             KeyChain::getInstance()->getService()->decrypt($this);
+            $this->isDecrypted = true;
         }
 
         return $this->decryptedKey;
