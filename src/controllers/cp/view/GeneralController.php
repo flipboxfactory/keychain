@@ -10,31 +10,21 @@ namespace flipbox\keychain\controllers\cp\view;
 
 
 use Craft;
+use craft\base\Plugin;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
+use flipbox\keychain\controllers\cp\AbstractController;
 use flipbox\keychain\KeyChain;
 use flipbox\keychain\records\KeyChainRecord;
 
-class GeneralController extends Controller
+class GeneralController extends AbstractController
 {
 
     const TEMPLATE_INDEX = 'keychain/_cp';
 
-    public function actionIndex()
+    protected function getPlugin(): Plugin
     {
-        $variables['crumbs'] = [
-            [
-                'url'=> UrlHelper::cpUrl('keychain'),
-                'label' => 'KeyChain'
-            ],
-        ];
-
-        $variables['keypairs'] = KeyChainRecord::find()->all();
-        $variables['title'] = Craft::t(KeyChain::getInstance()->getUniqueId(), KeyChain::getInstance()->name);
-        return $this->renderTemplate(
-            static::TEMPLATE_INDEX,
-            $variables
-        );
+        return KeyChain::getInstance();
     }
 
 }

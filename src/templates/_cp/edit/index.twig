@@ -3,26 +3,9 @@
 
 {% set fullPageForm=1 %}
 
-{% block content %}
-
-    <div class="grid first" data-max-cols="3">
-        <div class="item" data-position="left" data-colspan="2">
-
-            <input type="hidden" name="action"
-                   value="{{ baseActionPath }}/upsert">
-            {{ redirectInput(baseCpPath) }}
-
-            {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
-
-            {{ forms.textField({
-                label: "Description"|t('keychain'),
-                instructions: "Describe the what this key pair is for."|t('keychain'),
-                name: "description",
-                id: 'description',
-                value: keypair.description,
-                errors: keypair.getErrors('keypair'),
-            }) }}
-
+{% block details %}
+    <div id="settings">
+        <div class="meta">
             {{ forms.lightswitchField({
                 label: "Enable"|t('keychain'),
                 id: 'enabled',
@@ -30,42 +13,74 @@
                 on: keypair.enabled,
                 errors: keypair.getErrors('enabled')
             }) }}
-
-            {{ forms.textareaField({
-                label: "Key"|t('keychain'),
-                instructions: "Key"|t('keychain'),
-                class: "code",
-                id: 'key',
-                name: 'key',
-                value:  keypair.getDecryptedKey(),
-                errors: keypair.getErrors('key'),
-                required: true,
-                rows: 10
-            }) }}
-
-            {{ forms.textareaField({
-                label: "Certificate"|t('keychain'),
-                instructions: "Certificate"|t('keychain'),
-                class: "code",
-                id:   'certificate',
-                name: 'certificate',
-                value:  keypair.getDecryptedCertificate(),
-                errors: keypair.getErrors('certificate'),
-                required: true,
-                rows: 10
-            }) }}
-
+            <hr>
+            <p>
+                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
+            </p>
             {{ forms.lightswitchField({
                 label: "Is Encrypted"|t('keychain'),
-                instructions: "Encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain'),
                 id: 'isEncrypted',
                 name: 'isEncrypted',
                 on: keypair.isEncrypted,
                 errors: keypair.getErrors('isEncrypted')
             }) }}
-
         </div>
-        <div class="item" data-position="right" data-colspan="1"></div>
+        <hr>
+        {% if keypair.id %}
+            <div class="meta read-only">
+                <div class="data">
+                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
+                </div>
+                <div class="data">
+                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
+                </div>
+            </div>
+        {% endif %}
     </div>
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action"
+           value="{{ baseActionPath }}/upsert">
+    {{ redirectInput(baseCpPath) }}
+
+    {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
+
+    {{ forms.textField({
+        label: "Description"|t('keychain'),
+        instructions: "Describe the what this key pair is for."|t('keychain'),
+        name: "description",
+        id: 'description',
+        value: keypair.description,
+        errors: keypair.getErrors('keypair'),
+    }) }}
+
+    {{ forms.textareaField({
+        label: "Key"|t('keychain'),
+        instructions: "Key"|t('keychain'),
+        class: "code",
+        id: 'key',
+        name: 'key',
+        value:  keypair.getDecryptedKey(),
+        errors: keypair.getErrors('key'),
+        required: true,
+        rows: 10
+    }) }}
+
+    {{ forms.textareaField({
+        label: "Certificate"|t('keychain'),
+        instructions: "Certificate"|t('keychain'),
+        class: "code",
+        id:   'certificate',
+        name: 'certificate',
+        value:  keypair.getDecryptedCertificate(),
+        errors: keypair.getErrors('certificate'),
+        required: true,
+        rows: 10
+    }) }}
+
+    <div class="item" data-position="right" data-colspan="1"></div>
 
 {% endblock %}

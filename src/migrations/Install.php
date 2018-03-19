@@ -56,17 +56,18 @@ class Install extends Migration
             KeyChainRecord::getTableSchema();
         } catch (InvalidConfigException $e) {
             $this->createTable(KeyChainRecord::tableName(), [
-                'id'          => $this->primaryKey(),
-                'description' => $this->text()->comment('User defined description so a human can understand what this is for.'),
-                'key'         => $this->text()->notNull(),
-                'certificate' => $this->text()->notNull(),
-                'class'       => $this->string()->notNull(),
-                'settings'    => $this->text(),
-                'enabled'     => $this->boolean()->defaultValue(true)->notNull(),
-                'isEncrypted' => $this->boolean()->defaultValue(true)->notNull(),
-                'dateUpdated' => $this->dateTime()->notNull(),
-                'dateCreated' => $this->dateTime()->notNull(),
-                'uid'         => $this->uid()
+                'id'           => $this->primaryKey(),
+                'description'  => $this->text()->comment('User defined description so a human can understand what this is for.'),
+                'key'          => $this->text()->notNull(),
+                'certificate'  => $this->text()->notNull(),
+                'class'        => $this->string()->notNull(),
+                'pluginHandle' => $this->string()->notNull(),
+                'settings'     => $this->text(),
+                'enabled'      => $this->boolean()->defaultValue(true)->notNull(),
+                'isEncrypted'  => $this->boolean()->defaultValue(true)->notNull(),
+                'dateUpdated'  => $this->dateTime()->notNull(),
+                'dateCreated'  => $this->dateTime()->notNull(),
+                'uid'          => $this->uid()
             ]);
         }
 

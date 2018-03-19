@@ -1,28 +1,52 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 
-{% block actionButton %}
-    <div class="btngroup submit right">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+{% set fullPageForm=1 %}
 
-        <div class="btn submit menubtn"></div>
-        <div class="menu">
-            <ul>
-                <li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
-                        {{ "Save and continue editing"|t('app') }}
-                        {{ forms.optionShortcutLabel('S') }}
-                    </a></li>
-            </ul>
+{% block details %}
+    <div id="settings">
+        <div class="meta">
+            {{ forms.lightswitchField({
+                label: "Enable"|t('keychain'),
+                id: 'enabled',
+                name: 'enabled',
+                on: keypair.enabled,
+                errors: keypair.getErrors('enabled')
+            }) }}
+            <hr>
+            <p>
+                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
+            </p>
+            {{ forms.lightswitchField({
+                label: "Is Encrypted"|t('keychain'),
+                id: 'isEncrypted',
+                name: 'isEncrypted',
+                on: keypair.isEncrypted,
+                errors: keypair.getErrors('isEncrypted')
+            }) }}
         </div>
+        <hr>
+        {% if keypair.id %}
+            <div class="meta read-only">
+                <div class="data">
+                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
+                </div>
+                <div class="data">
+                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
-
 
 {% block content %}
 
     <div class="grid first" data-max-cols="3">
         <div class="item" data-position="left" data-colspan="2">
 
+            <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
             <input type="hidden" name="action"
                    value="{{ baseActionPath }}/{% if keypair.id %}update{% else %}create{% endif %}">
             {{ redirectInput(baseCpPath) }}
@@ -36,23 +60,6 @@
                 id: 'description',
                 value: keypair.description,
                 errors: keypair.getErrors('keypair'),
-            }) }}
-
-            {{ forms.lightswitchField({
-                label: "Enable"|t('keychain'),
-                id: 'enabled',
-                name: 'enabled',
-                on: keypair.enabled,
-                errors: keypair.getErrors('enabled')
-            }) }}
-
-            {{ forms.lightswitchField({
-                label: "Is Encrypted"|t('keychain'),
-                instructions: "Encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain'),
-                id: 'isEncrypted',
-                name: 'isEncrypted',
-                on: keypair.isEncrypted,
-                errors: keypair.getErrors('isEncrypted')
             }) }}
 
             {% for key, value in options.attributes %}
