@@ -48,19 +48,19 @@
 
             <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
             <input type="hidden" name="action"
-                   value="{{ baseActionPath }}/{% if keypair.id %}update{% else %}create{% endif %}">
+                   value="{{ baseActionPath }}/upsert/openssl">
             {{ redirectInput(baseCpPath) }}
 
             {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
 
-            {{ forms.textField({
-                label: "Description"|t('keychain'),
-                instructions: "Describe the what this key pair is for."|t('keychain'),
-                name: "description",
-                id: 'description',
-                value: keypair.description,
-                errors: keypair.getErrors('keypair'),
-            }) }}
+            {#{{ forms.textField({#}
+            {#label: "Description"|t('keychain'),#}
+            {#instructions: "Describe the what this key pair is for."|t('keychain'),#}
+            {#name: "description",#}
+            {#id: 'description',#}
+            {#value: keypair.description,#}
+            {#errors: keypair.getErrors('keypair'),#}
+            {#}) }}#}
 
             {% for key, value in options.attributes %}
                 {{ forms.textField({

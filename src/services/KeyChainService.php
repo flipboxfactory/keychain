@@ -10,11 +10,24 @@ namespace flipbox\keychain\services;
 
 
 use craft\base\Component;
+use craft\base\Plugin;
 use flipbox\keychain\keypair\KeyPairInterface;
 use flipbox\keychain\records\KeyChainRecord;
+use yii\db\ActiveQuery;
 
 class KeyChainService extends Component
 {
+
+    /**
+     * @param Plugin $plugin
+     * @return ActiveQuery
+     */
+    public function findByPlugin(Plugin $plugin)
+    {
+        return KeyChainRecord::find()->where([
+            'pluginHandle' => $plugin->handle,
+        ]);
+    }
 
     /**
      * @param KeyChainRecord $keyChainRecord
@@ -22,7 +35,7 @@ class KeyChainService extends Component
      */
     public function save(KeyChainRecord $keyChainRecord, $runValidation = true, $attributeNames = null)
     {
-        if(!$runValidation && $keyChainRecord->validate()) {
+        if (! $runValidation && $keyChainRecord->validate()) {
             return false;
         }
 
@@ -45,7 +58,7 @@ class KeyChainService extends Component
     public function decrypt(KeyChainRecord $record)
     {
 
-        if ($record->isEncrypted && !$record->isDecrypted) {
+        if ($record->isEncrypted && ! $record->isDecrypted) {
             $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
                 base64_decode($record->key),
                 \Craft::$app->getConfig()->getGeneral()->securityKey
@@ -68,16 +81,19 @@ class KeyChainService extends Component
     public function encrypt(KeyChainRecord $record)
     {
 
-        /**
-         * Encrypt data at rest
-         */
-        $record->key = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
-            $record->key,
-            \Craft::$app->getConfig()->getGeneral()->securityKey
-        ));
-        $record->certificate = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
-            $record->certificate,
-            \Craft::$app->getConfig()->getGeneral()->securityKey
-        ));
+        if ($record->isEncrypted && $record->isDecrypted) {
+            /**
+             * Encrypt data at rest
+             */
+            $record->key = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
+                $record->key,
+                \Craft::$app->getConfig()->getGeneral()->securityKey
+            ));
+            $record->certificate = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
+                $record->certificate,
+                \Craft::$app->getConfig()->getGeneral()->securityKey
+            ));
+
+        }
     }
 }

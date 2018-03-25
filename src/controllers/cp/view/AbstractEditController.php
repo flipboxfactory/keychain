@@ -24,6 +24,10 @@ abstract class AbstractEditController extends AbstractController
 
     const TEMPLATE_INDEX = 'keychain/_cp/edit';
 
+    /**
+     * @param null $keypairId
+     * @return \yii\web\Response
+     */
     public function actionIndex($keypairId = null)
     {
         $variables = $this->getBaseVariables();
@@ -35,7 +39,7 @@ abstract class AbstractEditController extends AbstractController
             $variables['title'] .= ': Edit';
             $crumb = [
                 'url'   => UrlHelper::cpUrl(
-                    $this->getPlugin()->getUniqueId() . '/' . $keypairId
+                    $variables['baseCpPath'] . '/' . $keypairId
                 ),
                 'label' => $variables['keypair']->description,
             ];
@@ -45,7 +49,7 @@ abstract class AbstractEditController extends AbstractController
             $variables['title'] .= ': Create Bring Your Own Key';
             $crumb = [
                 'url'   => UrlHelper::cpUrl(
-                    KeyChain::getInstance()->getUniqueId() . '/new'
+                    $variables['baseCpPath'] . '/new'
                 ),
                 'label' => 'New',
             ];
@@ -59,6 +63,9 @@ abstract class AbstractEditController extends AbstractController
         );
     }
 
+    /**
+     * @return \yii\web\Response
+     */
     public function actionOpenssl()
     {
         $variables = $this->getBaseVariables();

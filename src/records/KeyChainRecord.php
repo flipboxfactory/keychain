@@ -18,6 +18,9 @@ use flipbox\keychain\KeyChain;
  * @package flipbox\keychain\records
  * @property string $certificate
  * @property string $key
+ * @property bool $enabled
+ * @property bool $isEncrypted
+ * @property string $pluginHandle
  */
 class KeyChainRecord extends ActiveRecord
 {

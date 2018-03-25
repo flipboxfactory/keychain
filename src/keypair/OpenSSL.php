@@ -42,7 +42,7 @@ class OpenSSL extends Model implements KeyPairInterface
         ];
     }
 
-    public function create() : KeyChainRecord
+    public function create(): KeyChainRecord
     {
 
         // Generate a new private (and public) key pair
@@ -65,8 +65,8 @@ class OpenSSL extends Model implements KeyPairInterface
         return new KeyChainRecord([
             'certificate' => $certout,
             'key'         => $pkeyout,
-            'class' => self::class,
-            'settings' => $this->toArray(),
+            'class'       => self::class,
+            'settings'    => $this->toArray(),
             'description' => $this->description,
         ]);
     }

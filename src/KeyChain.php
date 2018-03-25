@@ -21,7 +21,7 @@ use yii\base\Module;
 class KeyChain extends Plugin
 {
 
-    public $hasCpSection = true;
+//    public $hasCpSection = true;
 
     /**
      * Initializes the module.
@@ -29,10 +29,6 @@ class KeyChain extends Plugin
     public function init()
     {
 
-        /**
-         * Don't know why I have to do this but I do for craft cli to work.
-         */
-//        Craft::setAlias('@flipbox/keychain/controllers', __DIR__ . '/controllers');
         parent::init();
 
         /**

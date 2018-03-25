@@ -27,21 +27,22 @@ abstract class AbstractController extends Controller
     protected function getBaseVariables()
     {
         $variables = [
-            'pluginHandle'       => $this->getPlugin(),
+            'pluginHandle'       => $this->getPlugin()->handle,
             'title'              => $this->getPlugin()->name . ' - ' . KeyChain::getInstance()->name,
             // Set the "Continue Editing" URL
             'continueEditingUrl' => $this->getBaseCpPath(),
             'baseActionPath'     => $this->getBaseActionPath(),
             'baseCpPath'         => $this->getBaseCpPath(),
         ];
+        $crumbPath = '';
         if (! ($this->getPlugin() instanceof KeyChain)) {
             $variables['crumbs'][] = [
-                'url'   => UrlHelper::cpUrl($variables['baseCpPath']),
+                'url'   => UrlHelper::cpUrl($this->getPlugin()->getUniqueId()),
                 'label' => $this->getPlugin()->name,
             ];
         }
         $variables['crumbs'][] = [
-            'url'   => UrlHelper::cpUrl(KeyChain::getInstance()->getUniqueId()),
+            'url'   => UrlHelper::cpUrl($variables['baseCpPath']),
             'label' => 'KeyChain',
         ];
         return $variables;
