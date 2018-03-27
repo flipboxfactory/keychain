@@ -10,6 +10,7 @@ namespace flipbox\keychain\keypair\traits;
 
 
 use craft\helpers\Console;
+use flipbox\keychain\KeyChain;
 use flipbox\keychain\keypair\KeyPairInterface;
 use flipbox\keychain\keypair\OpenSSL as OpenSSLServiceModel;
 use yii\console\ExitCode;
@@ -64,7 +65,7 @@ trait OpenSSLCli
 
         $keyPairRecord = $keyPair->create();
 
-        if (! $this->getPlugin()->getKeyChain()->getService()->save($keyPairRecord)) {
+        if (! KeyChain::getInstance()->getService()->save($keyPairRecord)) {
             $this->stderr(
                 sprintf('Failed to save new key pair to the database') . PHP_EOL
                 , Console::FG_RED);
