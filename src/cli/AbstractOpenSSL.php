@@ -1,34 +1,39 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/6/18
- * Time: 9:48 PM
+ * @copyright  Copyright (c) Flipbox Digital Limited
  */
 
-namespace flipbox\keychain\keypair\traits;
+
+namespace flipbox\keychain\cli;
 
 
+use craft\base\Plugin;
 use craft\helpers\Console;
 use flipbox\keychain\KeyChain;
-use flipbox\keychain\keypair\KeyPairInterface;
-use flipbox\keychain\keypair\OpenSSL as OpenSSLServiceModel;
+use flipbox\keychain\records\KeyChainRecord;
+use yii\console\Controller;
 use yii\console\ExitCode;
+use flipbox\keychain\keypair\traits\OpenSSL;
+use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
 
 /**
- * Trait OpenSSL
+ * Class AbstractOpenSSL
  * @package flipbox\keychain\keypair\traits
- * @property string $startNoticeText
- * @property array $labels
- * @method getAttributes(): array
- * @method prompt($text, $options = []): string
- * @method promptKeyPair(): OpenSSLServiceModel
  */
-trait OpenSSLCli
+abstract class AbstractOpenSSL extends Controller
 {
 
+    use OpenSSL, OpenSSLCliUtil;
+
+    /**
+     * @return Plugin
+     */
     abstract protected function getPlugin();
 
+    /**
+     * @inheritdoc
+     */
     public function options($actionID)
     {
         return array_merge(
@@ -40,6 +45,9 @@ trait OpenSSLCli
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function optionAliases()
     {
         return array_merge(
@@ -60,10 +68,18 @@ trait OpenSSLCli
         if (! $this->interactive) {
 
         } else {
+            /** @var \flipbox\keychain\keypair\OpenSSL $keyPair */
             $keyPair = $this->promptKeyPair();
         }
 
+        /** @var KeyChainRecord $keyPairRecord */
         $keyPairRecord = $keyPair->create();
+
+
+        $keyPairRecord->pluginHandle = $this->getPlugin()->getUniqueId();
+        $keyPairRecord->isEncrypted = true;
+        $keyPairRecord->isDecrypted = true;
+
 
         if (! KeyChain::getInstance()->getService()->save($keyPairRecord)) {
             $this->stderr(

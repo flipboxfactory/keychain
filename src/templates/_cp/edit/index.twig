@@ -44,6 +44,7 @@
 {% block content %}
     <input type="hidden" name="action"
            value="{{ baseActionPath }}/upsert">
+    <input type="hidden" name="pluginHandle" value="{{ keypair.pluginHandle }}"/>
     {{ redirectInput(baseCpPath) }}
 
     {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
