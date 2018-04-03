@@ -27,7 +27,7 @@ abstract class AbstractController extends Controller
     protected function getBaseVariables()
     {
         $variables = [
-            'pluginHandle'       => $this->getPlugin()->handle,
+            'pluginHandle'       => $this->getPlugin()->getUniqueId(),
             'title'              => $this->getPlugin()->name . ' - ' . KeyChain::getInstance()->name,
             // Set the "Continue Editing" URL
             'continueEditingUrl' => $this->getBaseCpPath(),

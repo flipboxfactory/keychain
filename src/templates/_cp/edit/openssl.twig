@@ -10,7 +10,7 @@
                 label: "Enable"|t('keychain'),
                 id: 'enabled',
                 name: 'enabled',
-                on: keypair.enabled,
+                on: keypair.id ? keypair.enabled : true,
                 errors: keypair.getErrors('enabled')
             }) }}
             <hr>
@@ -21,7 +21,7 @@
                 label: "Is Encrypted"|t('keychain'),
                 id: 'isEncrypted',
                 name: 'isEncrypted',
-                on: keypair.isEncrypted,
+                on: keypair.id ? keypair.isEncrypted : true,
                 errors: keypair.getErrors('isEncrypted')
             }) }}
         </div>
@@ -46,21 +46,12 @@
     <div class="grid first" data-max-cols="3">
         <div class="item" data-position="left" data-colspan="2">
 
-            <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
             <input type="hidden" name="action"
                    value="{{ baseActionPath }}/upsert/openssl">
+            <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
             {{ redirectInput(baseCpPath) }}
 
             {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
-
-            {#{{ forms.textField({#}
-            {#label: "Description"|t('keychain'),#}
-            {#instructions: "Describe the what this key pair is for."|t('keychain'),#}
-            {#name: "description",#}
-            {#id: 'description',#}
-            {#value: keypair.description,#}
-            {#errors: keypair.getErrors('keypair'),#}
-            {#}) }}#}
 
             {% for key, value in options.attributes %}
                 {{ forms.textField({

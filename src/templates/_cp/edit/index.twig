@@ -10,7 +10,7 @@
                 label: "Enable"|t('keychain'),
                 id: 'enabled',
                 name: 'enabled',
-                on: keypair.enabled,
+                on: keypair.id ? keypair.enabled : true,
                 errors: keypair.getErrors('enabled')
             }) }}
             <hr>
@@ -21,7 +21,7 @@
                 label: "Is Encrypted"|t('keychain'),
                 id: 'isEncrypted',
                 name: 'isEncrypted',
-                on: keypair.isEncrypted,
+                on: keypair.id ? keypair.isEncrypted : true,
                 errors: keypair.getErrors('isEncrypted')
             }) }}
         </div>
@@ -44,7 +44,7 @@
 {% block content %}
     <input type="hidden" name="action"
            value="{{ baseActionPath }}/upsert">
-    <input type="hidden" name="pluginHandle" value="{{ keypair.pluginHandle }}"/>
+    <input type="hidden" name="pluginHandle" value="{{ pluginHandle }}"/>
     {{ redirectInput(baseCpPath) }}
 
     {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}

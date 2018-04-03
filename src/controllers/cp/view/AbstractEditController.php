@@ -44,8 +44,9 @@ abstract class AbstractEditController extends AbstractController
                 'label' => $variables['keypair']->description,
             ];
         } else {
-            $variables['keypair'] = new KeyChainRecord([
-            ]);
+            $variables['keypair'] = $keypair = new KeyChainRecord(
+
+            );
             $variables['title'] .= ': Create Bring Your Own Key';
             $crumb = [
                 'url'   => UrlHelper::cpUrl(

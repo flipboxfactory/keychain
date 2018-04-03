@@ -1,8 +1,18 @@
 {% extends "_layouts/cp" %}
 
 {% block actionButton %}
-    <div class="btngroup submit first">
-        <a class="btn submit add icon" href="{{ cpUrl('keychain/new') }}">Add New KeyChain key pair</a>
+
+    <div class="btngroup">
+        <a class="btn submit add icon"
+           href="{{ cpUrl(baseCpPath ~ '/new') }}">{{ 'Add New Key Pair'|t('keychain') }}</a>
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            <ul>
+                <li><a class="formsubmit"
+                       href="{{ cpUrl(baseCpPath ~ '/new-openssl') }}">{{ "Create New OpenSSL Key Pair"|t('app') }}</a>
+                </li>
+            </ul>
+        </div>
     </div>
 {% endblock %}
 

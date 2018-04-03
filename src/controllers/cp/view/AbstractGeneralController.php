@@ -29,6 +29,7 @@ abstract class AbstractGeneralController extends AbstractController
         $variables['keypairs'] = KeyChain::getInstance()->getService()->findByPlugin(
             $this->getPlugin()
         )->all();
+
         $variables['title'] = Craft::t($this->getPlugin()->getUniqueId(),
             ($this->getPlugin() instanceof KeyChain ? '' : $this->getPlugin()->name . ': ') .
             KeyChain::getInstance()->name);
