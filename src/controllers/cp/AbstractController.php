@@ -33,6 +33,7 @@ abstract class AbstractController extends Controller
             'continueEditingUrl' => $this->getBaseCpPath(),
             'baseActionPath'     => $this->getBaseActionPath(),
             'baseCpPath'         => $this->getBaseCpPath(),
+            'actions'            => [],
         ];
         $crumbPath = '';
         if (! ($this->getPlugin() instanceof KeyChain)) {

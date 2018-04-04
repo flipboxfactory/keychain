@@ -33,10 +33,26 @@ abstract class AbstractEditController extends AbstractController
         $variables = $this->getBaseVariables();
 
         if ($keypairId) {
-            $variables['keypair'] = KeyChainRecord::find()->where([
+            $keypair = $variables['keypair'] = KeyChainRecord::find()->where([
                 'id' => $keypairId,
             ])->one();
             $variables['title'] .= ': Edit';
+
+
+            $variables['actions'] = [
+                [
+                    //action list 1
+                    [
+                        'action' => 'keychain/upsert/change-status',
+                        'label'  => $keypair->enabled ? 'Disable' : 'Enable',
+                    ],
+                    [
+                        'action' => 'keychain/upsert/delete',
+                        'label'  => 'Delete',
+                    ],
+                ],
+            ];
+
             $crumb = [
                 'url'   => UrlHelper::cpUrl(
                     $variables['baseCpPath'] . '/' . $keypairId
@@ -44,9 +60,7 @@ abstract class AbstractEditController extends AbstractController
                 'label' => $variables['keypair']->description,
             ];
         } else {
-            $variables['keypair'] = $keypair = new KeyChainRecord(
-
-            );
+            $variables['keypair'] = $keypair = new KeyChainRecord();
             $variables['title'] .= ': Create Bring Your Own Key';
             $crumb = [
                 'url'   => UrlHelper::cpUrl(

@@ -43,6 +43,17 @@ class KeyChainService extends Component
     }
 
     /**
+     * @param KeyChainRecord $keyChainRecord
+     * @return false|int
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function delete(KeyChainRecord $keyChainRecord)
+    {
+        return $keyChainRecord->delete();
+    }
+
+    /**
      * @param KeyPairInterface $keyPairConfig
      * @return KeyChainRecord
      */

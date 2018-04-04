@@ -106,7 +106,76 @@ abstract class AbstractUpsertController extends AbstractController
 
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
+                EditController::TEMPLATE_INDEX,
+                array_merge(
+                    $this->getBaseVariables(), [
+                        'keypair' => $keychainRecord,
+                    ]
+                )
+            );
+        }
+
+        return $this->redirectToPostedUrl();
+    }
+
+
+    /**
+     * @return \yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function actionChangeStatus()
+    {
+        $this->requireAdmin();
+        $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
+
+        $keychainRecord = KeyChainRecord::find()->where([
+            'id' => $keypairId,
+        ])->one();
+
+        $keychainRecord->enabled = ! $keychainRecord->enabled;
+
+        if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
+            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
+        } else {
+
+            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
+            return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX . '/openssl',
+                array_merge(
+                    $this->getBaseVariables(), [
+                        'keypair' => $keychainRecord,
+                    ]
+                )
+            );
+        }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAdmin();
+        $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
+
+        $keychainRecord = KeyChainRecord::find()->where([
+            'id' => $keypairId,
+        ])->one();
+
+        if (KeyChain::getInstance()->getService()->delete($keychainRecord)) {
+            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair deleted.'));
+        } else {
+
+            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t delete.'));
+            return $this->renderTemplate(
+                EditController::TEMPLATE_INDEX,
                 array_merge(
                     $this->getBaseVariables(), [
                         'keypair' => $keychainRecord,
