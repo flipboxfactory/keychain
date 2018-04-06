@@ -1,6 +1,6 @@
 # KeyChain
 
-## A Yii2 Module for CraftCMS 
+## A CraftCMS Plugin to Manage Key Pairs
 
 [![Join the chat at https://gitter.im/flipboxfactory/keychain](https://badges.gitter.im/flipboxfactory/keychain.svg)](https://gitter.im/flipboxfactory/keychain?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Latest Version](https://img.shields.io/github/release/flipboxfactory/keychain.svg?style=flat-square)](https://github.com/flipboxfactory/keychain/releases)

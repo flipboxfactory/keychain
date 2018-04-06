@@ -26,6 +26,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionIndex()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
         $request = Craft::$app->request;
         $id = $request->getBodyParam('identifier');
@@ -91,6 +92,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionOpenssl()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
         $request = Craft::$app->request;
 
