@@ -14,6 +14,7 @@ use craft\web\Controller;
 use flipbox\keychain\controllers\cp\AbstractController;
 use flipbox\keychain\controllers\cp\view\EditController;
 use flipbox\keychain\KeyChain;
+use flipbox\keychain\keypair\Byok;
 use flipbox\keychain\keypair\OpenSSL;
 use flipbox\keychain\records\KeyChainRecord;
 
@@ -38,7 +39,11 @@ abstract class AbstractUpsertController extends AbstractController
                 $keypair->getDecryptedKey();
             }
         } else {
-            $keypair = new KeyChainRecord();
+            $keypair = (new Byok([
+                'key'          => $request->getBodyParam('key'),
+                'certificate'  => $request->getBodyParam('certificate'),
+                'description'  => $request->getBodyParam('description'),
+            ]))->create();
         }
 
         /**
@@ -49,10 +54,17 @@ abstract class AbstractUpsertController extends AbstractController
             'key'          => $request->getBodyParam('key'),
             'certificate'  => $request->getBodyParam('certificate'),
             'description'  => $request->getBodyParam('description'),
-            'enabled'      => $request->getBodyParam('enabled'),
             'isEncrypted'  => $request->getBodyParam('isEncrypted'),
             'pluginHandle' => $request->getBodyParam('pluginHandle'),
         ]);
+
+        /**
+         * Make sure enabled as a value
+         */
+        if($keypair->enabled === null) {
+            $keypair->enabled = true;
+        }
+
 
         if (KeyChain::getInstance()->getService()->save($keypair)) {
 
