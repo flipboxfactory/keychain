@@ -20,6 +20,7 @@ use flipbox\keychain\keypair\OpenSSL as OpenSSLServiceModel;
  * @property array $labels
  * @method getAttributes(): array
  * @method prompt($text, $options = []): string
+ * @method int|bool stdout($string, $color) @see \yii\console\Controller::stdout
  */
 trait OpenSSLCliUtil
 {

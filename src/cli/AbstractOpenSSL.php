@@ -64,13 +64,8 @@ abstract class AbstractOpenSSL extends Controller
     public function actionCreateKeyPair()
     {
 
-        //create key pair
-        if (! $this->interactive) {
-
-        } else {
-            /** @var \flipbox\keychain\keypair\OpenSSL $keyPair */
-            $keyPair = $this->promptKeyPair();
-        }
+        /** @var \flipbox\keychain\keypair\OpenSSL $keyPair */
+        $keyPair = $this->promptKeyPair();
 
         /** @var KeyChainRecord $keyPairRecord */
         $keyPairRecord = $keyPair->create();

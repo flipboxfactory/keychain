@@ -22,7 +22,7 @@ class EditController extends AbstractEditController
     /**
      * @return Plugin
      */
-    protected function getPlugin(): Plugin
+    protected function getPlugin()
     {
         return KeyChain::getInstance();
     }

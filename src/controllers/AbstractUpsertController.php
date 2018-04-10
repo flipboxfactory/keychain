@@ -11,6 +11,7 @@ namespace flipbox\keychain\controllers;
 use Craft;
 use craft\base\Plugin;
 use craft\web\Controller;
+use craft\web\Request;
 use flipbox\keychain\controllers\cp\AbstractController;
 use flipbox\keychain\controllers\cp\view\EditController;
 use flipbox\keychain\KeyChain;
@@ -28,6 +29,8 @@ abstract class AbstractUpsertController extends AbstractController
     {
         $this->requireAdmin();
         $this->requirePostRequest();
+
+        /** @var Request $request */
         $request = Craft::$app->request;
         $id = $request->getBodyParam('identifier');
         if ($id) {
@@ -41,9 +44,9 @@ abstract class AbstractUpsertController extends AbstractController
             }
         } else {
             $keypair = (new Byok([
-                'key'          => $request->getBodyParam('key'),
-                'certificate'  => $request->getBodyParam('certificate'),
-                'description'  => $request->getBodyParam('description'),
+                'key'         => $request->getBodyParam('key'),
+                'certificate' => $request->getBodyParam('certificate'),
+                'description' => $request->getBodyParam('description'),
             ]))->create();
         }
 
@@ -62,7 +65,7 @@ abstract class AbstractUpsertController extends AbstractController
         /**
          * Make sure enabled as a value
          */
-        if($keypair->enabled === null) {
+        if ($keypair->enabled === null) {
             $keypair->enabled = true;
         }
 
@@ -94,6 +97,8 @@ abstract class AbstractUpsertController extends AbstractController
     {
         $this->requireAdmin();
         $this->requirePostRequest();
+
+        /** @var Request $request */
         $request = Craft::$app->request;
 
         $keychainRecord = (new OpenSSL([
@@ -183,7 +188,7 @@ abstract class AbstractUpsertController extends AbstractController
             'id' => $keypairId,
         ])->one();
 
-        if (KeyChain::getInstance()->getService()->delete($keychainRecord)) {
+        if (false !== KeyChain::getInstance()->getService()->delete($keychainRecord)) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair deleted.'));
         } else {
 

@@ -9,14 +9,11 @@
 namespace flipbox\keychain;
 
 
-use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
-use flipbox\keychain\events\AnyoneUsingMe;
 use flipbox\keychain\services\KeyChainService;
 use yii\base\Event;
-use yii\base\Module;
 
 class KeyChain extends Plugin
 {
@@ -58,7 +55,7 @@ class KeyChain extends Plugin
      */
     protected function initComponents()
     {
-        return $this->setComponents([
+        $this->setComponents([
             'keyChain' => KeyChainService::class,
         ]);
     }

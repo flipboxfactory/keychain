@@ -19,7 +19,7 @@ abstract class AbstractController extends Controller
     /**
      * @return Plugin
      */
-    abstract protected function getPlugin(): Plugin;
+    abstract protected function getPlugin();
 
     /**
      * @return array
@@ -35,7 +35,8 @@ abstract class AbstractController extends Controller
             'baseCpPath'         => $this->getBaseCpPath(),
             'actions'            => [],
         ];
-        $crumbPath = '';
+
+
         if (! ($this->getPlugin() instanceof KeyChain)) {
             $variables['crumbs'][] = [
                 'url'   => UrlHelper::cpUrl($this->getPlugin()->getUniqueId()),

@@ -18,7 +18,7 @@ use flipbox\keychain\records\KeyChainRecord;
 
 class UpsertController extends AbstractUpsertController
 {
-    protected function getPlugin(): Plugin
+    protected function getPlugin()
     {
         return KeyChain::getInstance();
     }

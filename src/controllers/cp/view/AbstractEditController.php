@@ -25,7 +25,7 @@ abstract class AbstractEditController extends AbstractController
     const TEMPLATE_INDEX = 'keychain/_cp/edit';
 
     /**
-     * @param null $keypairId
+     * @param string|null $keypairId
      * @return \yii\web\Response
      */
     public function actionIndex($keypairId = null)
@@ -60,7 +60,7 @@ abstract class AbstractEditController extends AbstractController
                 'label' => $variables['keypair']->description,
             ];
         } else {
-            $variables['keypair'] = $keypair = new KeyChainRecord();
+            $variables['keypair'] = new KeyChainRecord();
             $variables['title'] .= ': Create Bring Your Own Key';
             $crumb = [
                 'url'   => UrlHelper::cpUrl(

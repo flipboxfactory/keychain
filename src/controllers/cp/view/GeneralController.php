@@ -22,7 +22,7 @@ class GeneralController extends AbstractController
 
     const TEMPLATE_INDEX = 'keychain/_cp';
 
-    protected function getPlugin(): Plugin
+    protected function getPlugin()
     {
         return KeyChain::getInstance();
     }

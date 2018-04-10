@@ -16,6 +16,7 @@ use flipbox\keychain\KeyChain;
 /**
  * Class KeyChainRecord
  * @package flipbox\keychain\records
+ * @property int $id
  * @property string $certificate
  * @property string $key
  * @property bool $enabled
