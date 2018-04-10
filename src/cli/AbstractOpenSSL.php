@@ -87,7 +87,7 @@ abstract class AbstractOpenSSL extends Controller
             sprintf(
                 'Key pair save! Id: %s',
                 $keyPairRecord->id
-            ) . PHP_EOL
+            ) . PHP_EOL, Console::FG_GREEN
         );
         return ExitCode::OK;
     }
