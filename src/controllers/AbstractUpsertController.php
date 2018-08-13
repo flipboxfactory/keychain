@@ -9,8 +9,6 @@
 namespace flipbox\keychain\controllers;
 
 use Craft;
-use craft\base\Plugin;
-use craft\web\Controller;
 use craft\web\Request;
 use flipbox\keychain\controllers\cp\AbstractController;
 use flipbox\keychain\controllers\cp\view\EditController;
@@ -129,6 +127,47 @@ abstract class AbstractUpsertController extends AbstractController
                 array_merge(
                     $this->getBaseVariables(), [
                         'keypair' => $keychainRecord,
+                    ]
+                )
+            );
+        }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function actionGenerateOpenssl()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
+        $config = [];
+        if ($plugin = Craft::$app->request->getParam('plugin')) {
+            $config = [
+                'pluginHandle' => $plugin,
+            ];
+        }
+
+        /** @var KeyChainRecord $keyPair */
+        $keyPair = KeyChain::getInstance()->getService()->generateOpenssl($config);
+
+        if (Craft::$app->request->isAjax) {
+            return $this->asJson($keyPair->toArray());
+        }
+
+        if (! $keyPair->hasErrors()) {
+            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
+        } else {
+
+            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
+            return $this->renderTemplate(
+                EditController::TEMPLATE_INDEX,
+                array_merge(
+                    $this->getBaseVariables(), [
+                        'keypair' => $keyPair,
                     ]
                 )
             );

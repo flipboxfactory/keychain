@@ -12,6 +12,7 @@ namespace flipbox\keychain;
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
+use flipbox\keychain\models\Settings;
 use flipbox\keychain\services\KeyChainService;
 use yii\base\Event;
 
@@ -72,6 +73,21 @@ class KeyChain extends Plugin
         return $this->get('keyChain');
     }
 
+    /**
+     * @return Settings
+     */
+    public function getSettings()
+    {
+        return parent::getSettings();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createSettingsModel()
+    {
+        return new Settings();
+    }
 
     /**
      * @param RegisterUrlRulesEvent $event

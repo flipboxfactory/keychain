@@ -11,7 +11,9 @@ namespace flipbox\keychain\services;
 
 use craft\base\Component;
 use craft\base\Plugin;
+use flipbox\keychain\KeyChain;
 use flipbox\keychain\keypair\KeyPairInterface;
+use flipbox\keychain\keypair\OpenSSL;
 use flipbox\keychain\records\KeyChainRecord;
 use yii\db\ActiveQuery;
 
@@ -63,8 +65,41 @@ class KeyChainService extends Component
     }
 
     /**
+     * @param array $config
+     * @return KeyChainRecord
+     */
+    public function generateOpenssl($config = [])
+    {
+        /**
+         * Create the key pair using the defaults
+         */
+        $openssl = new OpenSSL(
+            KeyChain::getInstance()->getSettings()->opensslDefaults
+        );
+        $keyPair = $openssl->create();
+
+        /**
+         * default this to false.
+         */
+        $keyPair->isEncrypted = false;
+
+        /**
+         * Merge in any configs passed
+         */
+        \Craft::configure($keyPair, $config);
+
+        /**
+         * Save
+         */
+        $this->save($keyPair);
+
+        return $keyPair;
+    }
+
+    /**
      * @param KeyChainRecord $record
-     * @todo Support KMS
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function decrypt(KeyChainRecord $record)
     {
@@ -87,7 +122,8 @@ class KeyChainService extends Component
 
     /**
      * @param KeyChainRecord $record
-     * @todo Support KMS
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function encrypt(KeyChainRecord $record)
     {
