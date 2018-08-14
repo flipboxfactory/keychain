@@ -69,4 +69,12 @@ abstract class AbstractController extends Controller
         return $this->getPlugin()->getUniqueId() . '/' . KeyChain::getInstance()->getUniqueId();
     }
 
+    /**
+     * @param array $variables
+     * @return array
+     */
+    protected function beforeRender(array $variables=[])
+    {
+        return $variables;
+    }
 }

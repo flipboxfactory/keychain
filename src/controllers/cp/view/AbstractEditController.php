@@ -72,6 +72,8 @@ abstract class AbstractEditController extends AbstractController
 
         $variables['crumbs'][] = $crumb;
 
+
+        $variables = $this->beforeRender($variables);
         return $this->renderTemplate(
             static::TEMPLATE_INDEX,
             $variables

@@ -33,6 +33,8 @@ abstract class AbstractGeneralController extends AbstractController
         $variables['title'] = Craft::t($this->getPlugin()->getUniqueId(),
             ($this->getPlugin() instanceof KeyChain ? '' : $this->getPlugin()->name . ': ') .
             KeyChain::getInstance()->name);
+
+        $variables = $this->beforeRender($variables);
         return $this->renderTemplate(
             static::TEMPLATE_INDEX,
             $variables
