@@ -7,7 +7,6 @@
 
 namespace flipbox\keychain\cli;
 
-
 use craft\base\Plugin;
 use craft\helpers\Console;
 use flipbox\keychain\KeyChain;
@@ -78,8 +77,9 @@ abstract class AbstractOpenSSL extends Controller
 
         if (! KeyChain::getInstance()->getService()->save($keyPairRecord)) {
             $this->stderr(
-                sprintf('Failed to save new key pair to the database') . PHP_EOL
-                , Console::FG_RED);
+                sprintf('Failed to save new key pair to the database') . PHP_EOL,
+                Console::FG_RED
+            );
             return ExitCode::DATAERR;
         }
 
@@ -87,7 +87,8 @@ abstract class AbstractOpenSSL extends Controller
             sprintf(
                 'Key pair save! Id: %s',
                 $keyPairRecord->id
-            ) . PHP_EOL, Console::FG_GREEN
+            ) . PHP_EOL,
+            Console::FG_GREEN
         );
         return ExitCode::OK;
     }

@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\controllers\cp\view;
 
-
 use Craft;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
@@ -30,9 +29,11 @@ abstract class AbstractGeneralController extends AbstractController
             $this->getPlugin()
         )->all();
 
-        $variables['title'] = Craft::t($this->getPlugin()->getUniqueId(),
+        $variables['title'] = Craft::t(
+            $this->getPlugin()->getUniqueId(),
             ($this->getPlugin() instanceof KeyChain ? '' : $this->getPlugin()->name . ': ') .
-            KeyChain::getInstance()->name);
+            KeyChain::getInstance()->name
+        );
 
         $variables = $this->beforeRender($variables);
         return $this->renderTemplate(
@@ -40,5 +41,4 @@ abstract class AbstractGeneralController extends AbstractController
             $variables
         );
     }
-
 }

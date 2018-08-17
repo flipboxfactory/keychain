@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\keypair;
 
-
 use craft\base\Model;
 use flipbox\keychain\records\KeyChainRecord;
 
@@ -70,5 +69,4 @@ class OpenSSL extends Model implements KeyPairInterface
             'description' => $this->description,
         ]);
     }
-
 }

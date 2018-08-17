@@ -22,5 +22,4 @@ class UpsertController extends AbstractUpsertController
     {
         return KeyChain::getInstance();
     }
-
 }

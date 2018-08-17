@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\keypair;
 
-
 use flipbox\keychain\records\KeyChainRecord;
 
 interface KeyPairInterface

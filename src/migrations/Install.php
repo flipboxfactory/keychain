@@ -57,7 +57,9 @@ class Install extends Migration
         } catch (InvalidConfigException $e) {
             $this->createTable(KeyChainRecord::tableName(), [
                 'id'           => $this->primaryKey(),
-                'description'  => $this->text()->comment('User defined description so a human can understand what this is for.'),
+                'description'  => $this->text()->comment(
+                    'User defined description so a human can understand what this is for.'
+                ),
                 'key'          => $this->text()->notNull(),
                 'certificate'  => $this->text()->notNull(),
                 'class'        => $this->string()->notNull(),
@@ -70,7 +72,6 @@ class Install extends Migration
                 'uid'          => $this->uid()
             ]);
         }
-
     }
 
     /**
@@ -80,7 +81,6 @@ class Install extends Migration
      */
     protected function createIndexes()
     {
-
     }
 
     /**
@@ -90,6 +90,5 @@ class Install extends Migration
      */
     protected function addForeignKeys()
     {
-
     }
 }

@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\records;
 
-
 use flipbox\ember\records\ActiveRecord;
 use flipbox\ember\records\traits\StateAttribute;
 use flipbox\keychain\KeyChain;
@@ -106,5 +105,4 @@ class KeyChainRecord extends ActiveRecord
 
         return $this->decryptedCertificate;
     }
-
 }

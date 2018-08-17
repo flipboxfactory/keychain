@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\controllers\cp\view;
 
-
 use Craft;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
@@ -26,5 +25,4 @@ class GeneralController extends AbstractController
     {
         return KeyChain::getInstance();
     }
-
 }

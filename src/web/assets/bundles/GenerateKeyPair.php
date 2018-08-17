@@ -6,7 +6,6 @@
 
 namespace flipbox\keychain\web\assets\bundles;
 
-
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 

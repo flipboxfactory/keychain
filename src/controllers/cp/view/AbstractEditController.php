@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\controllers\cp\view;
 
-
 use Craft;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
@@ -106,5 +105,4 @@ abstract class AbstractEditController extends AbstractController
             $variables
         );
     }
-
 }

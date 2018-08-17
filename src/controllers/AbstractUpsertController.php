@@ -69,15 +69,14 @@ abstract class AbstractUpsertController extends AbstractController
 
 
         if (KeyChain::getInstance()->getService()->save($keypair)) {
-
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
         } else {
-
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX,
                 array_merge(
-                    $this->getBaseVariables(), [
+                    $this->getBaseVariables(),
+                    [
                         'keypair' => $keypair,
                     ]
                 )
@@ -120,12 +119,12 @@ abstract class AbstractUpsertController extends AbstractController
         if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
         } else {
-
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX,
                 array_merge(
-                    $this->getBaseVariables(), [
+                    $this->getBaseVariables(),
+                    [
                         'keypair' => $keychainRecord,
                     ]
                 )
@@ -161,12 +160,12 @@ abstract class AbstractUpsertController extends AbstractController
         if (! $keyPair->hasErrors()) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
         } else {
-
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX,
                 array_merge(
-                    $this->getBaseVariables(), [
+                    $this->getBaseVariables(),
+                    [
                         'keypair' => $keyPair,
                     ]
                 )
@@ -196,12 +195,12 @@ abstract class AbstractUpsertController extends AbstractController
         if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
         } else {
-
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX . '/openssl',
                 array_merge(
-                    $this->getBaseVariables(), [
+                    $this->getBaseVariables(),
+                    [
                         'keypair' => $keychainRecord,
                     ]
                 )
@@ -230,12 +229,12 @@ abstract class AbstractUpsertController extends AbstractController
         if (false !== KeyChain::getInstance()->getService()->delete($keychainRecord)) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair deleted.'));
         } else {
-
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t delete.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX,
                 array_merge(
-                    $this->getBaseVariables(), [
+                    $this->getBaseVariables(),
+                    [
                         'keypair' => $keychainRecord,
                     ]
                 )

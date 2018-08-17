@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain;
 
-
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
@@ -34,7 +33,6 @@ class KeyChain extends Plugin
          */
         $this->initComponents();
         $this->initEvents();
-
     }
 
     public function initEvents()

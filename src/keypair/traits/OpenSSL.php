@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\keypair\traits;
 
-
 /**
  * Trait OpenSSL
  * @package flipbox\keychain\keypair\traits
@@ -104,7 +103,5 @@ EOF;
                 'default' => $this->description,
             ],
         ];
-
     }
-
 }

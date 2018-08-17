@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\services;
 
-
 use craft\base\Component;
 use craft\base\Plugin;
 use flipbox\keychain\KeyChain;
@@ -117,7 +116,6 @@ class KeyChainService extends Component
             $record->decryptedKey = $record->key;
             $record->decryptedCertificate = $record->certificate;
         }
-
     }
 
     /**
@@ -140,7 +138,6 @@ class KeyChainService extends Component
                 $record->certificate,
                 \Craft::$app->getConfig()->getGeneral()->securityKey
             ));
-
         }
     }
 }

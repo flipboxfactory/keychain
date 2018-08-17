@@ -6,7 +6,6 @@
 
 namespace flipbox\keychain\keypair;
 
-
 use craft\base\Model;
 use flipbox\keychain\records\KeyChainRecord;
 

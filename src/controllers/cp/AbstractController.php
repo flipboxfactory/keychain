@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\controllers\cp;
 
-
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\base\Plugin;
@@ -73,7 +72,7 @@ abstract class AbstractController extends Controller
      * @param array $variables
      * @return array
      */
-    protected function beforeRender(array $variables=[])
+    protected function beforeRender(array $variables = [])
     {
         return $variables;
     }

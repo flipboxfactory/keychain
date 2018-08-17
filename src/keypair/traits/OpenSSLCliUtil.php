@@ -8,7 +8,6 @@
 
 namespace flipbox\keychain\keypair\traits;
 
-
 use craft\helpers\Console;
 use flipbox\keychain\keypair\KeyPairInterface;
 use flipbox\keychain\keypair\OpenSSL as OpenSSLServiceModel;
@@ -33,8 +32,9 @@ trait OpenSSLCliUtil
         $this->stdout(
             PHP_EOL . PHP_EOL . '****************************************************' . PHP_EOL .
             $this->startNoticeText . PHP_EOL .
-            '****************************************************' . PHP_EOL . PHP_EOL
-            , Console::FG_GREEN);
+            '****************************************************' . PHP_EOL . PHP_EOL,
+            Console::FG_GREEN
+        );
 
         $config = [];
         foreach ($this->getAttributes() as $attribute => $options) {
@@ -46,5 +46,4 @@ trait OpenSSLCliUtil
 
         return new OpenSSLServiceModel($config);
     }
-
 }
