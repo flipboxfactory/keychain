@@ -1,6 +1,6 @@
 {
   "name": "flipboxfactory/keychain",
-  "description": "Key pair management for CraftCMS",
+  "description": "Key pair management for Craft CMS",
   "version": "1.0.0",
   "type": "craft-plugin",
   "keywords": [
