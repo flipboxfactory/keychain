@@ -56,10 +56,9 @@ abstract class AbstractUpsertController extends AbstractController
             'key'          => $request->getBodyParam('key'),
             'certificate'  => $request->getBodyParam('certificate'),
             'description'  => $request->getBodyParam('description'),
-            'isEncrypted'  => $request->getBodyParam('isEncrypted'),
+            'isEncrypted'  => $request->getBodyParam('isEncrypted') ?: false,
             'pluginHandle' => $request->getBodyParam('pluginHandle'),
         ]);
-
         /**
          * Make sure enabled as a value
          */
