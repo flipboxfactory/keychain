@@ -8,8 +8,6 @@
 
 namespace flipbox\keychain\records;
 
-use flipbox\ember\records\ActiveRecord;
-use flipbox\ember\records\traits\StateAttribute;
 use flipbox\keychain\KeyChain;
 
 /**
@@ -22,10 +20,9 @@ use flipbox\keychain\KeyChain;
  * @property bool $isEncrypted
  * @property string $pluginHandle
  */
-class KeyChainRecord extends ActiveRecord
+class KeyChainRecord extends \craft\db\ActiveRecord
 {
-
-    use StateAttribute;
+    use EmberTrait;
 
     public $decryptedKey;
     public $decryptedCertificate;
