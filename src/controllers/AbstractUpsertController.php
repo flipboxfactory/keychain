@@ -25,7 +25,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionIndex()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         $this->requirePostRequest();
 
         /** @var Request $request */
@@ -91,7 +91,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionOpenssl()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         $this->requirePostRequest();
 
         /** @var Request $request */
@@ -140,7 +140,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionGenerateOpenssl()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         $this->requirePostRequest();
         $config = [];
         if ($plugin = Craft::$app->request->getParam('plugin')) {
@@ -182,7 +182,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionChangeStatus()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
 
         $keychainRecord = KeyChainRecord::find()->where([
@@ -218,7 +218,7 @@ abstract class AbstractUpsertController extends AbstractController
      */
     public function actionDelete()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
 
         $keychainRecord = KeyChainRecord::find()->where([
