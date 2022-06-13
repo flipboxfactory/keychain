@@ -1,5 +1,9 @@
 Changelog
 =========
+## 4.0.0 - 2022-06-13
+### Fixed
+- upgraded for Craft 4.0
+
 ## 1.0.3 - 2020-01-07
 ### Fixed
 - Fixing issue with requiring admin when project config when `allowAdminChanges` general config is set.
