@@ -67,7 +67,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function beforeSave($insert)
+    public function beforeSave($insert): bool
     {
 
         if ($this->isEncrypted && $this->isDecrypted) {

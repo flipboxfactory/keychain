@@ -8,6 +8,7 @@
 
 namespace flipbox\keychain;
 
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
@@ -23,7 +24,7 @@ class KeyChain extends Plugin
     /**
      * Initializes the module.
      */
-    public function init()
+    public function init():void
     {
 
         parent::init();
@@ -74,7 +75,7 @@ class KeyChain extends Plugin
     /**
      * @return Settings
      */
-    public function getSettings()
+    public function getSettings(): ?Model
     {
         return parent::getSettings();
     }
@@ -82,7 +83,7 @@ class KeyChain extends Plugin
     /**
      * @inheritdoc
      */
-    public function createSettingsModel()
+    public function createSettingsModel(): ?Model
     {
         return new Settings();
     }
