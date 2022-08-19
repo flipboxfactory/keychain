@@ -10,6 +10,8 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/flipboxfactory/keychain.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/keychain)
 [![Total Downloads](https://img.shields.io/packagist/dt/flipboxfactory/keychain.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/keychain)
 
+> Craft CMS Support: 3.0 and 4.0
+
 ## Installation
 
 To install, use composer:
