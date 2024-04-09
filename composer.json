@@ -1,7 +1,7 @@
 {
   "name": "flipboxfactory/keychain",
   "description": "Key pair management for Craft CMS",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -11,7 +11,7 @@
     "yii2"
   ],
   "require": {
-    "craftcms/cms": "^4.0.0",
+    "craftcms/cms": "^5.0.0",
     "lib-openssl": "*"
   },
   "require-dev": {
@@ -37,7 +37,7 @@
   },
   "extra": {
     "name": "KeyChain",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "schemaVersion": "1.0.0",
     "handle": "keychain",
     "class": "flipbox\\keychain\\KeyChain",

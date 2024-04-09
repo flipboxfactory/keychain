@@ -1,5 +1,11 @@
 Changelog
 =========
+
+## 5.0.0 - 2024-04-02
+
+### Feature
+- Craft CMS 5.0 support
+
 ## 4.0.0 - 2022-06-13
 ### Fixed
 - upgraded for Craft 4.0
