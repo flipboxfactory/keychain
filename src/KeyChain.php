@@ -100,6 +100,7 @@ class KeyChain extends Plugin
                 'keychain/new'             => 'keychain/cp/view/edit/index',
                 'keychain/<keypairId:\d+>' => 'keychain/cp/view/edit/index',
                 'keychain/openssl'         => 'keychain/cp/view/edit/openssl',
+                'keychain/download-certificate' => 'keychain/cp/view/edit/download-certificate',
             ]
         );
     }

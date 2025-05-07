@@ -8,6 +8,7 @@
 
 namespace flipbox\keychain\controllers\cp;
 
+use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\base\Plugin;
@@ -18,7 +19,16 @@ abstract class AbstractController extends Controller
     /**
      * @return Plugin
      */
-    abstract protected function getPlugin();
+    protected function getPlugin()
+    {
+        $handle = Craft::$app->request->getBodyParam('pluginHandle');
+        if ($handle && $plugin = Craft::$app->getModule($handle)) {
+            if ($plugin instanceof Plugin) {
+                return $plugin;
+            }
+        }
+        return KeyChain::getInstance();
+    }
 
     /**
      * @return array

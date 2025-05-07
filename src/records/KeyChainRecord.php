@@ -46,6 +46,8 @@ class KeyChainRecord extends \craft\db\ActiveRecord
     {
         return array_merge(
             [
+                [['key', 'certificate'], 'required'],
+                ['certificate', 'isCertificateX509'],
                 ['key', 'isKeyCertAPair']
             ],
             parent::rules()
@@ -57,9 +59,28 @@ class KeyChainRecord extends \craft\db\ActiveRecord
      * @param $params
      * @param $validator
      */
+    public function isCertificateX509($attribute, $params, $validator)
+    {
+        $cert = $this->getDecryptedCertificateObject();
+        if (!$cert) {
+            $this->addError($attribute, 'Certificate is not a x509 certificate');
+        }
+    }
+
+    /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     */
     public function isKeyCertAPair($attribute, $params, $validator)
     {
-        if (! openssl_x509_check_private_key($this->getDecryptedCertificate(), $this->getDecryptedKey())) {
+        $key = openssl_pkey_get_private($this->getDecryptedKey());
+        if (!$key) {
+            $this->addError($attribute, 'Key is not a private key');
+            return;
+        }
+
+        if (! openssl_x509_check_private_key($this->getDecryptedCertificateObject(), $key)) {
             $this->addError($attribute, 'Key and certificate are not a pair.');
         }
     }
@@ -101,5 +122,37 @@ class KeyChainRecord extends \craft\db\ActiveRecord
         }
 
         return $this->decryptedCertificate;
+    }
+
+    /**
+     * @return ?\OpenSSLCertificate
+     */
+    protected function getDecryptedCertificateObject()
+    {
+        $certificateString = $this->getDecryptedCertificate();
+        if (!$certificateString) {
+            return null;
+        }
+
+        $cert = openssl_x509_read($certificateString);
+        if (!$cert) {
+            return null;
+        }
+
+        return $cert;
+    }
+
+    /**
+     * If the certificate is parsable, returns the \DateTimeImmutable that it expires, null otherwise.
+     * @return ?\DateTimeImmutable
+     */
+    public function getCertificateExpiration()
+    {
+        $certText = $this->getDecryptedCertificate();
+        $x509Data = openssl_x509_parse($certText);
+        if (!$x509Data) {
+            return null;
+        }
+        return new \DateTimeImmutable(sprintf('@%d', $x509Data['validTo_time_t']));
     }
 }

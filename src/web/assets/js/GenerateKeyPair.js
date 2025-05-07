@@ -31,18 +31,20 @@
                 {
                     plugin: this.$plugin
                 },
-                $.proxy(function (response, textStatus) {
+                function (response, textStatus) {
                     this.$spinner.addClass('hidden');
 
                     if (textStatus === 'success') {
-                        Craft.cp.displayNotice('Key pair created!');
+                        Craft.cp.displaySuccess(response.message || 'Key pair created!');
                         //update select
                         this.$selectInput.find('options').prop('selected', false);
                         this.$selectInput.append(
                             $('<option value="' + response.id + '" selected>' + response.description + '</option>')
                         )
+                    } else {
+                        Craft.cp.displayError(response.message);
                     }
-                }, this)
+                }.bind(this)
             );
         }
     })

@@ -66,23 +66,20 @@ abstract class AbstractUpsertController extends AbstractController
             $keypair->enabled = true;
         }
 
-
-        if (KeyChain::getInstance()->getService()->save($keypair)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
+        if (!KeyChain::getInstance()->getService()->save($keypair)) {
+            $this->setFailFlash(Craft::t('keychain', 'Key pair didn\'t save.'));
             return $this->renderTemplate(
                 EditController::TEMPLATE_INDEX,
-                array_merge(
+                EditController::getEditVariables(array_merge(
                     $this->getBaseVariables(),
                     [
                         'keypair' => $keypair,
                     ]
-                )
+                ))
             );
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asSuccess(Craft::t('keychain', 'Key pair saved.'));
     }
 
     /**
@@ -97,40 +94,34 @@ abstract class AbstractUpsertController extends AbstractController
         /** @var Request $request */
         $request = Craft::$app->request;
 
-        $keychainRecord = (new OpenSSL([
-            'description'            => $request->getBodyParam('description'),
-            'countryName'            => $request->getBodyParam('countryName'),
-            'stateOrProvinceName'    => $request->getBodyParam('stateOrProvinceName'),
-            'localityName'           => $request->getBodyParam('localityName'),
-            'organizationName'       => $request->getBodyParam('organizationName'),
-            'organizationalUnitName' => $request->getBodyParam('organizationalUnitName'),
-            'commonName'             => $request->getBodyParam('commonName'),
-            'emailAddress'           => $request->getBodyParam('emailAddress'),
-        ]))->create();
+        try {
+            $keychainRecord = (new OpenSSL([
+                'daysExpiry'             => (int)$request->getBodyParam('daysExpiry', 365),
+                'description'            => $request->getBodyParam('description'),
+                'countryName'            => $request->getBodyParam('countryName'),
+                'stateOrProvinceName'    => $request->getBodyParam('stateOrProvinceName'),
+                'localityName'           => $request->getBodyParam('localityName'),
+                'organizationName'       => $request->getBodyParam('organizationName'),
+                'organizationalUnitName' => $request->getBodyParam('organizationalUnitName'),
+                'commonName'             => $request->getBodyParam('commonName'),
+                'emailAddress'           => $request->getBodyParam('emailAddress'),
+            ]))->create();
 
-        Craft::configure($keychainRecord, [
-            'enabled'      => $request->getBodyParam('enabled') ?: false,
-            'isEncrypted'  => $request->getBodyParam('isEncrypted') ?: false,
-            'pluginHandle' => $request->getBodyParam('plugin'),
-        ]);
-        $keychainRecord->isDecrypted = true;
-
-        if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
-            );
+            Craft::configure($keychainRecord, [
+                'enabled'      => $request->getBodyParam('enabled') ?: false,
+                'isEncrypted'  => $request->getBodyParam('isEncrypted') ?: false,
+                'pluginHandle' => $request->getBodyParam('plugin'),
+            ]);
+            $keychainRecord->isDecrypted = true;
+        } catch (\Throwable $e) {
+            return $this->asFailure($e->getMessage());
         }
 
-        return $this->redirectToPostedUrl();
+        if (!KeyChain::getInstance()->getService()->save($keychainRecord)) {
+            return $this->asFailure(Craft::t('keychain', 'Key pair didn\'t save.'));
+        }
+
+        return $this->asSuccess(Craft::t('keychain', 'Key pair saved.'));
     }
 
     /**
@@ -152,26 +143,11 @@ abstract class AbstractUpsertController extends AbstractController
         /** @var KeyChainRecord $keyPair */
         $keyPair = KeyChain::getInstance()->getService()->generateOpenssl($config);
 
-        if (Craft::$app->request->isAjax) {
-            return $this->asJson($keyPair->toArray());
-        }
-
         if (! $keyPair->hasErrors()) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keyPair,
-                    ]
-                )
-            );
+            return $this->asSuccess(Craft::t('keychain', 'Key pair created!'), $keyPair->toArray());
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asFailure(Craft::t('keychain', 'Key pair didn\'t save.'));
     }
 
 
@@ -191,22 +167,11 @@ abstract class AbstractUpsertController extends AbstractController
 
         $keychainRecord->enabled = ! $keychainRecord->enabled;
 
-        if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX . '/openssl',
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
-            );
+        if (!KeyChain::getInstance()->getService()->save($keychainRecord)) {
+            return $this->asFailure(Craft::t('keychain', 'Key pair didn\'t save.'));
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asSuccess(Craft::t('keychain', 'Key pair saved.'));
     }
 
     /**
@@ -225,21 +190,10 @@ abstract class AbstractUpsertController extends AbstractController
             'id' => $keypairId,
         ])->one();
 
-        if (false !== KeyChain::getInstance()->getService()->delete($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair deleted.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t delete.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
-            );
+        if (!KeyChain::getInstance()->getService()->delete($keychainRecord)) {
+            return $this->asFailure(Craft::t('keychain', 'Key pair didn\'t delete.'));
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asSuccess(Craft::t('keychain', 'Key pair deleted.'));
     }
 }

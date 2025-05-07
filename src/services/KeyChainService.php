@@ -36,11 +36,7 @@ class KeyChainService extends Component
      */
     public function save(KeyChainRecord $keyChainRecord, $runValidation = true, $attributeNames = null)
     {
-        if (! $runValidation && $keyChainRecord->validate()) {
-            return false;
-        }
-
-        return $keyChainRecord->save();
+        return $keyChainRecord->save($runValidation, $attributeNames);
     }
 
     /**

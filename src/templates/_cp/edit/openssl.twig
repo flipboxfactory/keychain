@@ -13,57 +13,44 @@
                 on: keypair.id ? keypair.enabled : true,
                 errors: keypair.getErrors('enabled')
             }) }}
-            <hr>
-            <p>
-                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
-            </p>
             {{ forms.lightswitchField({
                 label: "Is Encrypted"|t('keychain'),
+                instructions: "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain'),
                 id: 'isEncrypted',
                 name: 'isEncrypted',
                 on: keypair.id ? keypair.isEncrypted : true,
                 errors: keypair.getErrors('isEncrypted')
             }) }}
         </div>
-        <hr>
-        {% if keypair.id %}
-            <div class="meta read-only">
-                <div class="data">
-                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
-                </div>
-                <div class="data">
-                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
-                </div>
-            </div>
-        {% endif %}
     </div>
 {% endblock %}
 
 {% block content %}
 
-    <div class="grid first" data-max-cols="3">
-        <div class="item" data-position="left" data-colspan="2">
+    <div class="flex-fields">
+        <input type="hidden" name="action" value="{{ baseActionPath }}/upsert/openssl">
+        <input type="hidden" name="plugin" value="{{ pluginHandle }}">
 
-            <input type="hidden" name="action"
-                   value="{{ baseActionPath }}/upsert/openssl">
-            <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
-            {{ redirectInput(baseCpPath) }}
+        {{ redirectInput(baseCpPath) }}
 
-            {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
+        {{ forms.textField({
+            label: 'Days Expiry',
+            id: 'daysExpiry',
+            name: 'daysExpiry',
+            type: 'number',
+            placeholder: 365,
+            fieldClass: 'width-75',
+        }) }}
 
-            {% for key, value in options.attributes %}
-                {{ forms.textField({
-                    label: options.labels[key],
-                    id: key,
-                    name: key,
-                    placeholder: value['default']
-                }) }}
-            {% endfor %}
-
-        </div>
-        <div class="item" data-position="right" data-colspan="1"></div>
+        {% for key, value in options.attributes %}
+            {{ forms.textField({
+                label: options.labels[key],
+                id: key,
+                name: key,
+                placeholder: value['default'],
+                fieldClass: 'width-75'
+            }) }}
+        {% endfor %}
     </div>
 
 {% endblock %}

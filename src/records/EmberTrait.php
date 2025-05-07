@@ -1,8 +1,6 @@
 <?php
 
-
 namespace flipbox\keychain\records;
-
 
 use yii\base\Model;
 

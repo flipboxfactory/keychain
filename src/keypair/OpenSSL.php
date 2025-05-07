@@ -43,23 +43,45 @@ class OpenSSL extends Model implements KeyPairInterface
 
     public function create(): KeyChainRecord
     {
-
         // Generate a new private (and public) key pair
         $privkey = openssl_pkey_new([
             "private_key_bits" => $this->keyBits,
             "private_key_type" => OPENSSL_KEYTYPE_RSA,
         ]);
 
+        if (!$privkey) {
+            throw new \RuntimeException('Unable to generate a new key pair.');
+        }
+
+        $dn = array_filter($this->toArray($this->attributes()));
+
         // Generate a certificate signing request
-        $csr = openssl_csr_new($this->toArray($this->attributes()), $privkey, ['digest_alg' => $this->digestAlgorithm]);
+        $csr = openssl_csr_new($dn, $privkey, ['digest_alg' => $this->digestAlgorithm]);
+
+        if (!$csr) {
+            throw new \RuntimeException('Unable to generate a certificate signing request.');
+        }
 
         // Generate a self-signed cert, valid for 365 days
         $x509 = openssl_csr_sign($csr, null, $privkey, $this->daysExpiry, ['digest_alg' => $this->digestAlgorithm]);
 
+        if (!$x509) {
+            throw new \RuntimeException('Unable to generate a self-signed cert.');
+        }
+
         // Save your private key, CSR and self-signed cert for later use
-        openssl_csr_export($csr, $csrout);
-        openssl_x509_export($x509, $certout);
-        openssl_pkey_export($privkey, $pkeyout);
+
+        if (!openssl_csr_export($csr, $csrout)) {
+            throw new \RuntimeException('Unable to export CSR.');
+        }
+
+        if (!openssl_x509_export($x509, $certout)) {
+            throw new \RuntimeException('Unable to export cert.');
+        }
+
+        if (!openssl_pkey_export($privkey, $pkeyout)) {
+            throw new \RuntimeException('Unable to export private key');
+        }
 
         return new KeyChainRecord([
             'certificate' => $certout,

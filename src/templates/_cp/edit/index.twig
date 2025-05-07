@@ -13,52 +13,33 @@
                         <span class="status {% if keypair.enabled %}active{% else %}inactive{% endif %}"></span>
                         {% if keypair.enabled %}Enabled{% else %}Disabled{% endif %}
                     </div>
-                    {% if actions|length %}
-                        <div>
-                            <div id="action-menubtn" class="btn menubtn" data-icon="settings" title="{{ 'Actions'|t('app') }}"></div>
-                            <div class="menu">
-                                {% for actionList in actions %}
-                                    {% if not loop.first %}<hr>{% endif %}
-                                    <ul>
-                                        {% for actionItem in actionList %}
-                                            <li><a
-                                                        {%- if actionItem.id is defined %} id="{{ actionItem.id }}"{% endif %}
-                                                        {%- if actionItem.action is defined %} class="formsubmit" data-action="{{ actionItem.action }}"{% endif -%}
-                                                >{{ actionItem.label }}</a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endfor %}
-                            </div>
-                            <div id="action-spinner" class="spinner hidden"></div>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
-            <hr>
-            <p>
-                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
-            </p>
             {{ forms.lightswitchField({
                 label: "Encrypt at Rest"|t('keychain'),
                 id: 'isEncrypted',
                 name: 'isEncrypted',
+                instructions: "Toggle 'Encrypt at Rest' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain'),
                 on: keypair.id ? keypair.isEncrypted : true,
                 errors: keypair.getErrors('isEncrypted')
             }) }}
         </div>
         <hr>
         {% if keypair.id %}
-            <div class="meta read-only">
+            <dl class="meta read-only">
                 <div class="data">
-                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
+                    <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                    <dd class="value">{{ keypair.dateCreated|datetime('short') }}</dd>
                 </div>
                 <div class="data">
-                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
+                    <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                    <dd class="value">{{ keypair.dateUpdated|datetime('short') }}</dd>
                 </div>
-            </div>
+                <div class="data">
+                    <dt class="heading">{{ "Certificate expires at" }}</dt>
+                    <dd class="value">{{ keypair.certificateExpiration|datetime('short') }}</dd>
+                </div>
+            </dl>
         {% endif %}
     </div>
 {% endblock %}
@@ -82,7 +63,6 @@
 
     {{ forms.textareaField({
         label: "Key"|t('keychain'),
-        instructions: "Key"|t('keychain'),
         class: "code",
         id: 'key',
         name: 'key',
@@ -92,9 +72,16 @@
         rows: 10
     }) }}
 
+    {% if keypair.id %}
+    {% set headingSuffix %}
+    <div class="flex-grow"></div>
+    <a download class="btn" href="{{ cpUrl(baseCpPath ~ '/download-certificate', {keyId: keypair.id}) }}" data-icon="download">Download</a>
+    {% endset %}
+    {% endif %}
+
     {{ forms.textareaField({
         label: "Certificate"|t('keychain'),
-        instructions: "Certificate"|t('keychain'),
+        headingSuffix: headingSuffix ?? null,
         class: "code",
         id:   'certificate',
         name: 'certificate',
@@ -103,7 +90,5 @@
         required: true,
         rows: 10
     }) }}
-
-    <div class="item" data-position="right" data-colspan="1"></div>
 
 {% endblock %}
