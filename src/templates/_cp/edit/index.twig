@@ -1,109 +1,104 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 
-{% set fullPageForm=1 %}
+{% set fullPageForm = true %}
 
 {% block details %}
-    <div id="settings">
-        <div class="meta">
-            <div class="data first">
-                <h5 class="heading">{{ "Status"|t('app') }}</h5>
-                <div class="value flex">
-                    <div class="flex-grow">
-                        <span class="status {% if keypair.enabled %}active{% else %}inactive{% endif %}"></span>
-                        {% if keypair.enabled %}Enabled{% else %}Disabled{% endif %}
-                    </div>
-                    {% if actions|length %}
-                        <div>
-                            <div id="action-menubtn" class="btn menubtn" data-icon="settings" title="{{ 'Actions'|t('app') }}"></div>
-                            <div class="menu">
-                                {% for actionList in actions %}
-                                    {% if not loop.first %}<hr>{% endif %}
-                                    <ul>
-                                        {% for actionItem in actionList %}
-                                            <li><a
-                                                        {%- if actionItem.id is defined %} id="{{ actionItem.id }}"{% endif %}
-                                                        {%- if actionItem.action is defined %} class="formsubmit" data-action="{{ actionItem.action }}"{% endif -%}
-                                                >{{ actionItem.label }}</a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endfor %}
-                            </div>
-                            <div id="action-spinner" class="spinner hidden"></div>
+    <dl class="meta read-only">
+        <div class="data">
+            <dt class="heading">{{ "Status"|t('app') }}</dt>
+            <dd class="value flex">
+                <div class="flex-grow">
+                    <span class="status {{ keypair.enabled ? 'active' : 'inactive' }}"></span>
+                    {{ keypair.enabled ? "Enabled"|t('app') : "Disabled"|t('app') }}
+                </div>
+                {% if actions|length %}
+                    <div>
+                        <button type="button" id="action-menubtn" class="btn menubtn" data-icon="settings"
+                                title="{{ 'Actions'|t('app') }}" aria-label="{{ 'Actions'|t('app') }}"></button>
+                        <div class="menu">
+                            {% for actionList in actions %}
+                                {% if not loop.first %}<hr>{% endif %}
+                                <ul>
+                                    {% for actionItem in actionList %}
+                                        <li><a
+                                                {%- if actionItem.id is defined %} id="{{ actionItem.id }}"{% endif %}
+                                                {%- if actionItem.action is defined %} class="formsubmit" data-action="{{ actionItem.action }}"{% endif -%}
+                                            >{{ actionItem.label }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                </div>
-            </div>
-            <hr>
-            <p>
-                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
-            </p>
-            {{ forms.lightswitchField({
-                label: "Encrypt at Rest"|t('keychain'),
-                id: 'isEncrypted',
-                name: 'isEncrypted',
-                on: keypair.id ? keypair.isEncrypted : true,
-                errors: keypair.getErrors('isEncrypted')
-            }) }}
+                        <div id="action-spinner" class="spinner hidden"></div>
+                    </div>
+                {% endif %}
+            </dd>
         </div>
-        <hr>
-        {% if keypair.id %}
-            <div class="meta read-only">
-                <div class="data">
-                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
-                </div>
-                <div class="data">
-                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
-                </div>
-            </div>
-        {% endif %}
+    </dl>
+
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Encrypt at Rest"|t('keychain'),
+            instructions: "Encrypt the key and certificate in the database with Craft's security key."|t('keychain'),
+            id: 'isEncrypted',
+            name: 'isEncrypted',
+            on: keypair.id ? keypair.isEncrypted : true,
+            errors: keypair.getErrors('isEncrypted'),
+        }) }}
     </div>
+
+    {% if keypair.id %}
+        <dl class="meta read-only">
+            <div class="data">
+                <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                <dd class="value">{{ keypair.dateCreated|datetime('short') }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                <dd class="value">{{ keypair.dateUpdated|datetime('short') }}</dd>
+            </div>
+        </dl>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action"
-           value="{{ baseActionPath }}/upsert">
-    <input type="hidden" name="pluginHandle" value="{{ pluginHandle }}"/>
+    <input type="hidden" name="action" value="{{ baseActionPath }}/upsert">
+    <input type="hidden" name="pluginHandle" value="{{ pluginHandle }}">
     {{ redirectInput(baseCpPath) }}
-
     {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
 
     {{ forms.textField({
+        first: true,
         label: "Description"|t('keychain'),
-        instructions: "Describe the what this key pair is for."|t('keychain'),
+        instructions: "What this key pair is for."|t('keychain'),
         name: "description",
         id: 'description',
         value: keypair.description,
-        errors: keypair.getErrors('keypair'),
+        errors: keypair.getErrors('description'),
     }) }}
 
     {{ forms.textareaField({
-        label: "Key"|t('keychain'),
-        instructions: "Key"|t('keychain'),
+        label: "Private Key"|t('keychain'),
+        instructions: "The PEM-encoded private key."|t('keychain'),
         class: "code",
         id: 'key',
         name: 'key',
-        value:  keypair.getDecryptedKey(),
+        value: keypair.getDecryptedKey(),
         errors: keypair.getErrors('key'),
         required: true,
-        rows: 10
+        rows: 10,
     }) }}
 
     {{ forms.textareaField({
         label: "Certificate"|t('keychain'),
-        instructions: "Certificate"|t('keychain'),
+        instructions: "The PEM-encoded X.509 certificate for the private key."|t('keychain'),
         class: "code",
-        id:   'certificate',
+        id: 'certificate',
         name: 'certificate',
-        value:  keypair.getDecryptedCertificate(),
+        value: keypair.getDecryptedCertificate(),
         errors: keypair.getErrors('certificate'),
         required: true,
-        rows: 10
+        rows: 10,
     }) }}
-
-    <div class="item" data-position="right" data-colspan="1"></div>
-
 {% endblock %}
