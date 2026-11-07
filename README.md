@@ -28,6 +28,8 @@ php craft plugin/install keychain
 
 Key pairs are managed under **KeyChain** in the control panel.
 
+Private keys aren't shown when you edit a key pair. Leave the field blank to keep the current key, paste a new one to replace it, or click **Reveal current key** (admins only, after re-entering your password) to see it.
+
 ## Usage
 
 ```php

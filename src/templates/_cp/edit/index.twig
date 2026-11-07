@@ -78,17 +78,35 @@
         errors: keypair.getErrors('description'),
     }) }}
 
-    {{ forms.textareaField({
+    {# The private key is never rendered. For an existing key pair it can be revealed on demand. #}
+    {% embed '_includes/forms/field' with {
         label: "Private Key"|t('keychain'),
-        instructions: "The PEM-encoded private key."|t('keychain'),
-        class: "code",
+        instructions: keypair.id ?
+            "The PEM-encoded private key. It's hidden: leave this blank to keep the current key, or paste a new one to replace it."|t('keychain') :
+            "The PEM-encoded private key."|t('keychain'),
         id: 'key',
-        name: 'key',
-        value: keypair.getDecryptedKey(),
+        required: not keypair.id,
         errors: keypair.getErrors('key'),
-        required: true,
-        rows: 10,
-    }) }}
+    } %}
+        {% block input %}
+            {% import '_includes/forms' as forms %}
+            {{ forms.textarea({
+                class: 'code',
+                id: 'key',
+                name: 'key',
+                rows: 10,
+                autocomplete: 'off',
+                spellcheck: false,
+                placeholder: keypair.id ? '••••••••••••••••••••••••••••••••' : '-----BEGIN PRIVATE KEY-----',
+            }) }}
+            {% if keypair.id %}
+                <div class="buttons">
+                    <button type="button" id="reveal-key" class="btn" data-icon="view">{{ "Reveal current key"|t('keychain') }}</button>
+                    <div id="reveal-key-spinner" class="spinner hidden"></div>
+                </div>
+            {% endif %}
+        {% endblock %}
+    {% endembed %}
 
     {{ forms.textareaField({
         label: "Certificate"|t('keychain'),
@@ -102,3 +120,27 @@
         rows: 10,
     }) }}
 {% endblock %}
+
+{% if keypair.id %}
+    {% js %}
+        (() => {
+            const button = document.getElementById('reveal-key');
+            const spinner = document.getElementById('reveal-key-spinner');
+            const field = document.getElementById('key');
+            button.addEventListener('click', () => {
+                Craft.elevatedSessionManager.requireElevatedSession(() => {
+                    spinner.classList.remove('hidden');
+                    Craft.sendActionRequest('POST', '{{ (baseActionPath ~ '/upsert/reveal-key')|e('js') }}', {
+                        data: {identifier: {{ keypair.id|json_encode|raw }}},
+                    })
+                        .then(({data}) => {
+                            field.value = data.key;
+                            button.closest('.buttons').remove();
+                        })
+                        .catch(() => Craft.cp.displayError("{{ 'Couldn’t reveal the key.'|t('keychain')|e('js') }}"))
+                        .finally(() => spinner.classList.add('hidden'));
+                });
+            });
+        })();
+    {% endjs %}
+{% endif %}
