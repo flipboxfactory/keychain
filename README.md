@@ -1,40 +1,88 @@
 # KeyChain
 
-## A Craft CMS Plugin to Manage Key Pairs
+Key pair management for Craft CMS.
 
-[![Join the chat at https://gitter.im/flipboxfactory/keychain](https://badges.gitter.im/flipboxfactory/keychain.svg)](https://gitter.im/flipboxfactory/keychain?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Latest Version](https://img.shields.io/github/release/flipboxfactory/keychain.svg?style=flat-square)](https://github.com/flipboxfactory/keychain/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/flipboxfactory/keychain/master.svg?style=flat-square)](https://travis-ci.com/flipboxfactory/keychain)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/flipboxfactory/keychain.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/keychain/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/flipboxfactory/keychain.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/keychain)
+[![CI](https://github.com/flipboxfactory/keychain/actions/workflows/ci.yml/badge.svg)](https://github.com/flipboxfactory/keychain/actions/workflows/ci.yml)
+[![Latest Version](https://img.shields.io/packagist/v/flipboxfactory/keychain.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/keychain)
 [![Total Downloads](https://img.shields.io/packagist/dt/flipboxfactory/keychain.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/keychain)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-> Craft CMS Support: 3.0 and 4.0
+KeyChain stores X.509 certificates and their private keys so other plugins can use them for signing and encryption. It is used by [SAML SP](https://github.com/flipboxfactory/saml-sp) and [SAML IdP](https://github.com/flipboxfactory/saml-idp).
+
+- Generate self-signed OpenSSL key pairs from the control panel
+- Bring your own key pair (BYOK)
+- Encrypt keys at rest with Craft's security key
+- Validates that a key and certificate belong together
+
+## Requirements
+
+- Craft CMS 5
+- PHP 8.2+ with the OpenSSL extension
 
 ## Installation
 
-To install, use composer:
-
-```
+```bash
 composer require flipboxfactory/keychain
+php craft plugin/install keychain
 ```
 
-## Testing
+Key pairs are managed under **KeyChain** in the control panel.
 
-``` bash
-$ ./vendor/bin/phpunit
+## Usage
+
+```php
+use flipbox\keychain\KeyChain;
+
+$service = KeyChain::getInstance()->getService();
+
+// Generate and save a key pair, using the plugin's OpenSSL defaults
+$keyPair = $service->generateOpenssl(['pluginHandle' => 'my-plugin']);
+
+// Key pairs belonging to a plugin
+$keyPairs = $service->findByPlugin($myPlugin)->all();
+
+// PEM strings, decrypted if stored encrypted
+$keyPair->getDecryptedKey();
+$keyPair->getDecryptedCertificate();
 ```
+
+## Settings
+
+Override the defaults in `config/keychain.php`:
+
+```php
+return [
+    'encryptByDefault' => true,
+    'opensslDefaults' => [
+        'digestAlgorithm' => 'sha256',
+        'keyBits' => 2048,
+        'daysExpiry' => 730,
+        'commonName' => 'example.com',
+        // countryName, stateOrProvinceName, localityName, organizationName,
+        // organizationalUnitName, emailAddress, description
+    ],
+];
+```
+
+## Development
+
+Checks follow Craft's [coding guidelines](https://craftcms.com/docs/5.x/extend/coding-guidelines.html): [craftcms/ecs](https://github.com/craftcms/ecs) and [craftcms/phpstan](https://github.com/craftcms/phpstan). Tests use Codeception with Craft's test module and need a MySQL database:
+
+```bash
+docker run -d --rm --name keychain-test-mysql -e MYSQL_ROOT_PASSWORD=password \
+  -e MYSQL_DATABASE=keychain_test -p 127.0.0.1:3306:3306 mysql:8.0
+cp tests/.env.example tests/.env   # adjust CRAFT_DB_* if needed
+
+composer check      # check-cs + phpstan + test
+composer fix-cs     # auto-fix coding standards
+```
+
+CI runs the same checks on every push and pull request.
 
 ## Contributing
 
-Please see [CONTRIBUTING](https://github.com/flipboxfactory/keychain/blob/master/CONTRIBUTING.md) for details.
-
-
-## Credits
-
-- [Flipbox Digital](https://github.com/flipbox)
+See [CONTRIBUTING](CONTRIBUTING.md).
 
 ## License
 
-The MIT License (MIT). Please see [License File](https://github.com/flipboxfactory/keychain/blob/master/LICENSE) for more information.
+MIT. See [LICENSE](LICENSE.md).

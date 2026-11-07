@@ -1,0 +1,10 @@
+/vendor
+composer.lock
+.DS_Store
+.idea
+
+# Tests
+tests/.env
+tests/_support/_generated
+tests/_craft/config/project/
+cpresources/
