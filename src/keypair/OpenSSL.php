@@ -51,7 +51,12 @@ class OpenSSL extends Model implements KeyPairInterface
         ]);
 
         // Generate a certificate signing request
-        $csr = openssl_csr_new($this->toArray($this->attributes()), $privkey, ['digest_alg' => $this->digestAlgorithm]);
+        // OpenSSL rejects empty DN entries, so leave blank fields out instead of failing
+        $dn = array_filter(
+            $this->toArray($this->attributes()),
+            fn($value) => $value !== null && $value !== ''
+        );
+        $csr = openssl_csr_new($dn, $privkey, ['digest_alg' => $this->digestAlgorithm]);
 
         // Generate a self-signed cert, valid for 365 days
         $x509 = openssl_csr_sign($csr, null, $privkey, $this->daysExpiry, ['digest_alg' => $this->digestAlgorithm]);
