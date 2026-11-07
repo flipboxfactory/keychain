@@ -8,6 +8,7 @@ Changelog
 
 ### Added
 - Codeception test suite, craftcms/ecs and craftcms/phpstan checks, and a GitHub Actions workflow
+- Merging a version bump to master now tags and publishes the GitHub release automatically
 
 ## 5.0.0 - 2024-04-02
 
