@@ -16,6 +16,7 @@ use flipbox\keychain\KeyChain;
 use flipbox\keychain\keypair\Byok;
 use flipbox\keychain\keypair\OpenSSL;
 use flipbox\keychain\records\KeyChainRecord;
+use yii\web\NotFoundHttpException;
 
 abstract class AbstractUpsertController extends AbstractController
 {
@@ -32,29 +33,19 @@ abstract class AbstractUpsertController extends AbstractController
         $request = Craft::$app->request;
         $id = $request->getBodyParam('identifier');
         if ($id) {
-            /** @var KeyChainRecord $keypair */
-            $keypair = KeyChainRecord::find()->where([
-                'id' => $id,
-            ])->one();
-
-            if ($keypair->isEncrypted) {
-                $keypair->getDecryptedKey();
-            }
+            $keypair = $this->findKeyPair($id);
         } else {
             $keypair = (new Byok([
-                'key' => $request->getBodyParam('key'),
-                'certificate' => $request->getBodyParam('certificate'),
                 'description' => $request->getBodyParam('description'),
             ]))->create();
         }
 
-        /**
-         * Set is decrypted so we know that the key and cert value is raw.
-         */
-        $keypair->isDecrypted = true;
+        // A blank key keeps the stored one: the edit page doesn't render the private key.
+        $keypair->setSubmittedKeyPair(
+            $request->getBodyParam('key'),
+            $request->getBodyParam('certificate')
+        );
         Craft::configure($keypair, [
-            'key' => $request->getBodyParam('key'),
-            'certificate' => $request->getBodyParam('certificate'),
             'description' => $request->getBodyParam('description'),
             'isEncrypted' => $request->getBodyParam('isEncrypted') ?: false,
             'pluginHandle' => $request->getBodyParam('pluginHandle'),
@@ -83,6 +74,53 @@ abstract class AbstractUpsertController extends AbstractController
         }
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Returns a key pair's decrypted private key, for the "Reveal" button on the edit page.
+     *
+     * Admin only, POST + CSRF, JSON, and an elevated session (the user re-enters their password).
+     *
+     * @return \yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws NotFoundHttpException
+     */
+    public function actionRevealKey()
+    {
+        $this->requireAdmin(false);
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requireElevatedSession();
+
+        $keypair = $this->findKeyPair(Craft::$app->getRequest()->getRequiredBodyParam('identifier'));
+
+        $response = $this->asJson([
+            'key' => $keypair->getDecryptedKey(),
+        ]);
+        $response->getHeaders()
+            ->set('Cache-Control', 'no-store, private')
+            ->set('Pragma', 'no-cache');
+
+        return $response;
+    }
+
+    /**
+     * @param int|string $id
+     * @throws NotFoundHttpException
+     */
+    protected function findKeyPair($id): KeyChainRecord
+    {
+        /** @var KeyChainRecord|null $keypair */
+        $keypair = KeyChainRecord::find()->where([
+            'id' => $id,
+        ])->one();
+
+        if (!$keypair) {
+            throw new NotFoundHttpException('Key pair not found.');
+        }
+
+        return $keypair;
     }
 
     /**
