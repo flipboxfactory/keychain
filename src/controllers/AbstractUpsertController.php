@@ -42,7 +42,7 @@ abstract class AbstractUpsertController extends AbstractController
             }
         } else {
             $keypair = (new Byok([
-                'key'         => $request->getBodyParam('key'),
+                'key' => $request->getBodyParam('key'),
                 'certificate' => $request->getBodyParam('certificate'),
                 'description' => $request->getBodyParam('description'),
             ]))->create();
@@ -53,10 +53,10 @@ abstract class AbstractUpsertController extends AbstractController
          */
         $keypair->isDecrypted = true;
         Craft::configure($keypair, [
-            'key'          => $request->getBodyParam('key'),
-            'certificate'  => $request->getBodyParam('certificate'),
-            'description'  => $request->getBodyParam('description'),
-            'isEncrypted'  => $request->getBodyParam('isEncrypted') ?: false,
+            'key' => $request->getBodyParam('key'),
+            'certificate' => $request->getBodyParam('certificate'),
+            'description' => $request->getBodyParam('description'),
+            'isEncrypted' => $request->getBodyParam('isEncrypted') ?: false,
             'pluginHandle' => $request->getBodyParam('pluginHandle'),
         ]);
         /**
@@ -98,19 +98,19 @@ abstract class AbstractUpsertController extends AbstractController
         $request = Craft::$app->request;
 
         $keychainRecord = (new OpenSSL([
-            'description'            => $request->getBodyParam('description'),
-            'countryName'            => $request->getBodyParam('countryName'),
-            'stateOrProvinceName'    => $request->getBodyParam('stateOrProvinceName'),
-            'localityName'           => $request->getBodyParam('localityName'),
-            'organizationName'       => $request->getBodyParam('organizationName'),
+            'description' => $request->getBodyParam('description'),
+            'countryName' => $request->getBodyParam('countryName'),
+            'stateOrProvinceName' => $request->getBodyParam('stateOrProvinceName'),
+            'localityName' => $request->getBodyParam('localityName'),
+            'organizationName' => $request->getBodyParam('organizationName'),
             'organizationalUnitName' => $request->getBodyParam('organizationalUnitName'),
-            'commonName'             => $request->getBodyParam('commonName'),
-            'emailAddress'           => $request->getBodyParam('emailAddress'),
+            'commonName' => $request->getBodyParam('commonName'),
+            'emailAddress' => $request->getBodyParam('emailAddress'),
         ]))->create();
 
         Craft::configure($keychainRecord, [
-            'enabled'      => $request->getBodyParam('enabled') ?: false,
-            'isEncrypted'  => $request->getBodyParam('isEncrypted') ?: false,
+            'enabled' => $request->getBodyParam('enabled') ?: false,
+            'isEncrypted' => $request->getBodyParam('isEncrypted') ?: false,
             'pluginHandle' => $request->getBodyParam('plugin'),
         ]);
         $keychainRecord->isDecrypted = true;
@@ -156,7 +156,7 @@ abstract class AbstractUpsertController extends AbstractController
             return $this->asJson($keyPair->toArray());
         }
 
-        if (! $keyPair->hasErrors()) {
+        if (!$keyPair->hasErrors()) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
         } else {
             Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
@@ -189,7 +189,7 @@ abstract class AbstractUpsertController extends AbstractController
             'id' => $keypairId,
         ])->one();
 
-        $keychainRecord->enabled = ! $keychainRecord->enabled;
+        $keychainRecord->enabled = !$keychainRecord->enabled;
 
         if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
             Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));

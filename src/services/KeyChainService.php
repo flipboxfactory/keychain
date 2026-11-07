@@ -18,7 +18,6 @@ use yii\db\ActiveQuery;
 
 class KeyChainService extends Component
 {
-
     /**
      * @param Plugin $plugin
      * @return ActiveQuery
@@ -36,7 +35,7 @@ class KeyChainService extends Component
      */
     public function save(KeyChainRecord $keyChainRecord, $runValidation = true, $attributeNames = null)
     {
-        if (! $runValidation && $keyChainRecord->validate()) {
+        if (!$runValidation && $keyChainRecord->validate()) {
             return false;
         }
 
@@ -102,8 +101,7 @@ class KeyChainService extends Component
      */
     public function decrypt(KeyChainRecord $record)
     {
-
-        if ($record->isEncrypted && ! $record->isDecrypted) {
+        if ($record->isEncrypted && !$record->isDecrypted) {
             $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
                 base64_decode($record->key),
                 \Craft::$app->getConfig()->getGeneral()->securityKey
@@ -125,7 +123,6 @@ class KeyChainService extends Component
      */
     public function encrypt(KeyChainRecord $record)
     {
-
         if ($record->isEncrypted && $record->isDecrypted) {
             /**
              * Encrypt data at rest

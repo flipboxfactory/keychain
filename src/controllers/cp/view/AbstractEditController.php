@@ -8,12 +8,8 @@
 
 namespace flipbox\keychain\controllers\cp\view;
 
-use Craft;
-use craft\base\Plugin;
 use craft\helpers\UrlHelper;
-use craft\web\Controller;
 use flipbox\keychain\controllers\cp\AbstractController;
-use flipbox\keychain\KeyChain;
 use flipbox\keychain\keypair\traits\OpenSSL;
 use flipbox\keychain\records\KeyChainRecord;
 
@@ -21,7 +17,7 @@ abstract class AbstractEditController extends AbstractController
 {
     use OpenSSL;
 
-    const TEMPLATE_INDEX = 'keychain/_cp/edit';
+    public const TEMPLATE_INDEX = 'keychain/_cp/edit';
 
     /**
      * @param string|null $keypairId
@@ -43,17 +39,17 @@ abstract class AbstractEditController extends AbstractController
                     //action list 1
                     [
                         'action' => 'keychain/upsert/change-status',
-                        'label'  => $keypair->enabled ? 'Disable' : 'Enable',
+                        'label' => $keypair->enabled ? 'Disable' : 'Enable',
                     ],
                     [
                         'action' => 'keychain/upsert/delete',
-                        'label'  => 'Delete',
+                        'label' => 'Delete',
                     ],
                 ],
             ];
 
             $crumb = [
-                'url'   => UrlHelper::cpUrl(
+                'url' => UrlHelper::cpUrl(
                     $variables['baseCpPath'] . '/' . $keypairId
                 ),
                 'label' => $variables['keypair']->description,
@@ -62,7 +58,7 @@ abstract class AbstractEditController extends AbstractController
             $variables['keypair'] = new KeyChainRecord();
             $variables['title'] .= ': Create Bring Your Own Key';
             $crumb = [
-                'url'   => UrlHelper::cpUrl(
+                'url' => UrlHelper::cpUrl(
                     $variables['baseCpPath'] . '/new'
                 ),
                 'label' => 'New',
@@ -94,7 +90,7 @@ abstract class AbstractEditController extends AbstractController
         ]);
         $variables['title'] .= ': Create OpenSSL Key Pair';
         $variables['crumbs'][] = [
-            'url'   => UrlHelper::cpUrl(
+            'url' => UrlHelper::cpUrl(
                 $this->getPlugin()->getUniqueId() . '/openssl'
             ),
             'label' => 'New',

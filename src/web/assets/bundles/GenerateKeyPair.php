@@ -20,7 +20,7 @@ class GenerateKeyPair extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init():void
+    public function init(): void
     {
         $this->js = [
             'js/GenerateKeyPair.js',

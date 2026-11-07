@@ -21,9 +21,9 @@ class Settings extends Model
      * @var array
      */
     public $opensslDefaults = [
-        'digestAlgorithm'=>'sha256',
-        'keyBits'=>2048,
-        'daysExpiry'=>365*2, //2 years
+        'digestAlgorithm' => 'sha256',
+        'keyBits' => 2048,
+        'daysExpiry' => 365 * 2, //2 years
         'description' => 'My Key Pair',
         'countryName' => 'US',
         'stateOrProvinceName' => 'Colorado',

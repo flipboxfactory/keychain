@@ -21,7 +21,6 @@ class Byok extends Model implements KeyPairInterface
      */
     public function create(): KeyChainRecord
     {
-
         return new KeyChainRecord([
             'key' => $this->key,
             'certificate' => $this->certificate,

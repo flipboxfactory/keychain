@@ -23,7 +23,6 @@ use flipbox\keychain\keypair\OpenSSL as OpenSSLServiceModel;
  */
 trait OpenSSLCliUtil
 {
-
     /**
      * @return KeyPairInterface
      */
