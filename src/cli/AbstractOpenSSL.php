@@ -10,11 +10,11 @@ namespace flipbox\keychain\cli;
 use craft\base\Plugin;
 use craft\helpers\Console;
 use flipbox\keychain\KeyChain;
+use flipbox\keychain\keypair\traits\OpenSSL;
+use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
 use flipbox\keychain\records\KeyChainRecord;
 use yii\console\Controller;
 use yii\console\ExitCode;
-use flipbox\keychain\keypair\traits\OpenSSL;
-use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
 
 /**
  * Class AbstractOpenSSL
@@ -22,7 +22,6 @@ use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
  */
 abstract class AbstractOpenSSL extends Controller
 {
-
     use OpenSSL, OpenSSLCliUtil;
 
     /**
@@ -75,7 +74,7 @@ abstract class AbstractOpenSSL extends Controller
         $keyPairRecord->isDecrypted = true;
 
 
-        if (! KeyChain::getInstance()->getService()->save($keyPairRecord)) {
+        if (!KeyChain::getInstance()->getService()->save($keyPairRecord)) {
             $this->stderr(
                 sprintf('Failed to save new key pair to the database') . PHP_EOL,
                 Console::FG_RED

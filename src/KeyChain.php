@@ -18,15 +18,13 @@ use yii\base\Event;
 
 class KeyChain extends Plugin
 {
-
 //    public $hasCpSection = true;
 
     /**
      * Initializes the module.
      */
-    public function init():void
+    public function init(): void
     {
-
         parent::init();
 
         /**
@@ -96,10 +94,10 @@ class KeyChain extends Plugin
         $event->rules = array_merge(
             $event->rules,
             [
-                'keychain'                 => 'keychain/cp/view/general/index',
-                'keychain/new'             => 'keychain/cp/view/edit/index',
+                'keychain' => 'keychain/cp/view/general/index',
+                'keychain/new' => 'keychain/cp/view/edit/index',
                 'keychain/<keypairId:\d+>' => 'keychain/cp/view/edit/index',
-                'keychain/openssl'         => 'keychain/cp/view/edit/openssl',
+                'keychain/openssl' => 'keychain/cp/view/edit/openssl',
             ]
         );
     }

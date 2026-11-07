@@ -36,7 +36,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
     /**
      * The table alias
      */
-    const TABLE_ALIAS = 'keychain';
+    public const TABLE_ALIAS = 'keychain';
 
 
     /**
@@ -46,7 +46,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
     {
         return array_merge(
             [
-                ['key', 'isKeyCertAPair']
+                ['key', 'isKeyCertAPair'],
             ],
             parent::rules()
         );
@@ -59,7 +59,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
      */
     public function isKeyCertAPair($attribute, $params, $validator)
     {
-        if (! openssl_x509_check_private_key($this->getDecryptedCertificate(), $this->getDecryptedKey())) {
+        if (!openssl_x509_check_private_key($this->getDecryptedCertificate(), $this->getDecryptedKey())) {
             $this->addError($attribute, 'Key and certificate are not a pair.');
         }
     }
@@ -69,7 +69,6 @@ class KeyChainRecord extends \craft\db\ActiveRecord
      */
     public function beforeSave($insert): bool
     {
-
         if ($this->isEncrypted && $this->isDecrypted) {
             KeyChain::getInstance()->getService()->encrypt($this);
         }
@@ -82,7 +81,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
      */
     public function getDecryptedKey()
     {
-        if (! $this->decryptedKey) {
+        if (!$this->decryptedKey) {
             KeyChain::getInstance()->getService()->decrypt($this);
             $this->isDecrypted = true;
         }
@@ -96,7 +95,7 @@ class KeyChainRecord extends \craft\db\ActiveRecord
      */
     public function getDecryptedCertificate()
     {
-        if (! $this->decryptedCertificate) {
+        if (!$this->decryptedCertificate) {
             KeyChain::getInstance()->getService()->decrypt($this);
         }
 

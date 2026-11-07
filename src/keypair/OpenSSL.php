@@ -68,9 +68,9 @@ class OpenSSL extends Model implements KeyPairInterface
 
         return new KeyChainRecord([
             'certificate' => $certout,
-            'key'         => $pkeyout,
-            'class'       => self::class,
-            'settings'    => $this->toArray(),
+            'key' => $pkeyout,
+            'class' => self::class,
+            'settings' => $this->toArray(),
             'description' => $this->description,
         ]);
     }

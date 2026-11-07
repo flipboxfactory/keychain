@@ -65,41 +65,41 @@ EOF;
     public $description = 'Tell me what this is for.';
 
     public $labels = [
-        'countryName'            => 'Country Name (2 letter code)',
-        'stateOrProvinceName'    => 'State or Province Name (full name)',
-        'localityName'           => 'Locality Name (eg, city)',
-        'organizationName'       => 'Organization Name (eg, company)',
+        'countryName' => 'Country Name (2 letter code)',
+        'stateOrProvinceName' => 'State or Province Name (full name)',
+        'localityName' => 'Locality Name (eg, city)',
+        'organizationName' => 'Organization Name (eg, company)',
         'organizationalUnitName' => 'Organizational Unit Name (eg, section)',
-        'commonName'             => 'Common Name (eg, fully qualified host name)',
-        'emailAddress'           => 'Email Address',
-        'description'            => 'Description',
+        'commonName' => 'Common Name (eg, fully qualified host name)',
+        'emailAddress' => 'Email Address',
+        'description' => 'Description',
     ];
 
     public function getAttributes()
     {
         return [
-            'countryName'            => [
+            'countryName' => [
                 'default' => $this->countryName,
             ],
-            'stateOrProvinceName'    => [
+            'stateOrProvinceName' => [
                 'default' => $this->stateOrProvinceName,
             ],
-            'localityName'           => [
+            'localityName' => [
                 'default' => $this->localityName,
             ],
-            'organizationName'       => [
+            'organizationName' => [
                 'default' => $this->organizationName,
             ],
             'organizationalUnitName' => [
                 'default' => $this->organizationalUnitName,
             ],
-            'commonName'             => [
+            'commonName' => [
                 'default' => $this->commonName,
             ],
-            'emailAddress'           => [
+            'emailAddress' => [
                 'default' => $this->emailAddress,
             ],
-            'description'            => [
+            'description' => [
                 'default' => $this->description,
             ],
         ];

@@ -12,5 +12,5 @@ use flipbox\keychain\records\KeyChainRecord;
 
 interface KeyPairInterface
 {
-    public function create() : KeyChainRecord;
+    public function create(): KeyChainRecord;
 }
