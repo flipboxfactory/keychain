@@ -1,69 +1,54 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 
-{% set fullPageForm=1 %}
+{% set fullPageForm = true %}
 
 {% block details %}
-    <div id="settings">
-        <div class="meta">
-            {{ forms.lightswitchField({
-                label: "Enable"|t('keychain'),
-                id: 'enabled',
-                name: 'enabled',
-                on: keypair.id ? keypair.enabled : true,
-                errors: keypair.getErrors('enabled')
-            }) }}
-            <hr>
-            <p>
-                {{ "Toggle 'Is Encrypted' to encrypt the key and certificate when it's stored in the db. This uses the Craft security key."|t('keychain') }}
-            </p>
-            {{ forms.lightswitchField({
-                label: "Is Encrypted"|t('keychain'),
-                id: 'isEncrypted',
-                name: 'isEncrypted',
-                on: keypair.id ? keypair.isEncrypted : true,
-                errors: keypair.getErrors('isEncrypted')
-            }) }}
-        </div>
-        <hr>
-        {% if keypair.id %}
-            <div class="meta read-only">
-                <div class="data">
-                    <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateCreated|datetime('short') }}</div>
-                </div>
-                <div class="data">
-                    <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                    <div class="value">{{ keypair.dateUpdated|datetime('short') }}</div>
-                </div>
-            </div>
-        {% endif %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled"|t('app'),
+            id: 'enabled',
+            name: 'enabled',
+            on: keypair.id ? keypair.enabled : true,
+            errors: keypair.getErrors('enabled'),
+        }) }}
+        {{ forms.lightswitchField({
+            label: "Encrypt at Rest"|t('keychain'),
+            instructions: "Encrypt the key and certificate in the database with Craft's security key."|t('keychain'),
+            id: 'isEncrypted',
+            name: 'isEncrypted',
+            on: keypair.id ? keypair.isEncrypted : true,
+            errors: keypair.getErrors('isEncrypted'),
+        }) }}
     </div>
+
+    {% if keypair.id %}
+        <dl class="meta read-only">
+            <div class="data">
+                <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                <dd class="value">{{ keypair.dateCreated|datetime('short') }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                <dd class="value">{{ keypair.dateUpdated|datetime('short') }}</dd>
+            </div>
+        </dl>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
+    <input type="hidden" name="action" value="{{ baseActionPath }}/upsert/openssl">
+    <input type="hidden" name="plugin" value="{{ pluginHandle }}">
+    {{ redirectInput(baseCpPath) }}
+    {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
 
-    <div class="grid first" data-max-cols="3">
-        <div class="item" data-position="left" data-colspan="2">
-
-            <input type="hidden" name="action"
-                   value="{{ baseActionPath }}/upsert/openssl">
-            <input type="hidden" name="plugin" value="{{ pluginHandle }}"/>
-            {{ redirectInput(baseCpPath) }}
-
-            {% if keypair.id %}<input type="hidden" name="identifier" value="{{ keypair.id }}">{% endif %}
-
-            {% for key, value in options.attributes %}
-                {{ forms.textField({
-                    label: options.labels[key],
-                    id: key,
-                    name: key,
-                    placeholder: value['default']
-                }) }}
-            {% endfor %}
-
-        </div>
-        <div class="item" data-position="right" data-colspan="1"></div>
-    </div>
-
+    {% for key, value in options.attributes %}
+        {{ forms.textField({
+            first: loop.first,
+            label: options.labels[key],
+            id: key,
+            name: key,
+            placeholder: value['default'],
+        }) }}
+    {% endfor %}
 {% endblock %}

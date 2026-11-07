@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## Unreleased
+
+### Changed
+- Control panel pages use Craft's own markup and classes: a plain data table with an empty state for the key pair list, standard sidebar fields and metadata on the edit pages, and consistent "Encrypt at Rest" labels
+
+### Fixed
+- Description validation errors weren't shown on the edit page (looked up under `keypair` instead of `description`)
+
 ## 5.0.1 - 2026-11-07
 
 ### Fixed
