@@ -31,7 +31,9 @@
   "autoload-dev": {
     "psr-4": {
       "flipbox\\keychain\\tests\\": "tests/",
-      "CraftCms\\Cms\\Database\\Factories\\": "vendor/craftcms/cms/database/Factories/"
+      "CraftCms\\Cms\\Database\\Factories\\": "vendor/craftcms/cms/database/Factories/",
+      "Workbench\\App\\": "workbench/app/",
+      "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
     }
   },
   "scripts": {
@@ -44,6 +46,14 @@
       "@check-cs",
       "@phpstan",
       "@test"
+    ],
+    "workbench:setup": [
+      "@php workbench/prepare.php",
+      "@php vendor/bin/testbench workbench:build --no-interaction"
+    ],
+    "serve": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php vendor/bin/testbench serve --host=127.0.0.1 --port=8090"
     ]
   },
   "config": {

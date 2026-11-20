@@ -75,6 +75,9 @@ return [
 
 ## Development
 
+For a local Craft 6 site running this working copy, run `dev/up` (needs Docker; see [dev/README.md](dev/README.md)).
+
+
 Tests use Pest with Orchestra Testbench and run on SQLite by default; set `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` to use MySQL or PostgreSQL. Style is checked with Pint, static analysis with Larastan.
 
 ```bash
