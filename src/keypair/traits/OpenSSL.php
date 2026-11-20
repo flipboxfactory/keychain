@@ -1,70 +1,34 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/6/18
- * Time: 9:48 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\keypair\traits;
 
 /**
- * Trait OpenSSL
- * @package flipbox\keychain\keypair\traits
+ * Labels and suggested values for the OpenSSL key pair form.
  */
 trait OpenSSL
 {
-    public $startNoticeText = <<<EOF
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter ' . ', the field will be left blank.
-EOF;
+    public string $countryName = 'US';
+
+    public string $stateOrProvinceName = 'Colorado';
+
+    public string $localityName = 'Denver';
+
+    public string $organizationName = 'Example';
+
+    public string $organizationalUnitName = 'IT';
+
+    public string $commonName = 'example.com';
+
+    public string $emailAddress = 'it@example.com';
+
+    public string $description = 'Tell me what this is for.';
 
     /**
-     * @var string
-     *  Country Name (OpenSSL Configuration)
+     * @var array<string, string>
      */
-    public $countryName = 'US';
-    /**
-     * @var string
-     *  State or Province Name (OpenSSL Configuration)
-     */
-    public $stateOrProvinceName = 'Colorado';
-    /**
-     * @var string
-     *  Locality Name (OpenSSL Configuration)
-     */
-    public $localityName = 'Denver';
-    /**
-     * @var string
-     *  Organization Name (OpenSSL Configuration)
-     */
-    public $organizationName = 'Example';
-    /**
-     * @var string
-     *  Organization Unit Name (OpenSSL Configuration)
-     */
-    public $organizationalUnitName = 'IT';
-    /**
-     * @var string
-     *  Common Name (OpenSSL Configuration)
-     */
-    public $commonName = 'example.com';
-    /**
-     * @var string
-     *  Email (OpenSSL Configuration)
-     */
-    public $emailAddress = 'it@example.com';
-
-    /**
-     * @var string
-     */
-    public $description = 'Tell me what this is for.';
-
-    public $labels = [
+    public array $labels = [
         'countryName' => 'Country Name (2 letter code)',
         'stateOrProvinceName' => 'State or Province Name (full name)',
         'localityName' => 'Locality Name (eg, city)',
@@ -75,33 +39,18 @@ EOF;
         'description' => 'Description',
     ];
 
-    public function getAttributes()
+    /**
+     * The form fields, with their suggested values.
+     *
+     * @return array<string, array{default: string}>
+     */
+    public function getAttributes(): array
     {
-        return [
-            'countryName' => [
-                'default' => $this->countryName,
-            ],
-            'stateOrProvinceName' => [
-                'default' => $this->stateOrProvinceName,
-            ],
-            'localityName' => [
-                'default' => $this->localityName,
-            ],
-            'organizationName' => [
-                'default' => $this->organizationName,
-            ],
-            'organizationalUnitName' => [
-                'default' => $this->organizationalUnitName,
-            ],
-            'commonName' => [
-                'default' => $this->commonName,
-            ],
-            'emailAddress' => [
-                'default' => $this->emailAddress,
-            ],
-            'description' => [
-                'default' => $this->description,
-            ],
-        ];
+        $attributes = [];
+        foreach (array_keys($this->labels) as $attribute) {
+            $attributes[$attribute] = ['default' => $this->$attribute];
+        }
+
+        return $attributes;
     }
 }

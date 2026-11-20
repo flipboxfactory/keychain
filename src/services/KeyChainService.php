@@ -1,140 +1,68 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 1/12/18
- * Time: 10:44 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\services;
 
-use craft\base\Component;
-use craft\base\Plugin;
-use flipbox\keychain\KeyChain;
+use CraftCms\Cms\Plugin\Contracts\PluginInterface;
 use flipbox\keychain\keypair\KeyPairInterface;
 use flipbox\keychain\keypair\OpenSSL;
+use flipbox\keychain\models\Settings;
 use flipbox\keychain\records\KeyChainRecord;
-use yii\db\ActiveQuery;
+use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Database\Eloquent\Builder;
 
-class KeyChainService extends Component
+#[Singleton]
+class KeyChainService
 {
+    public function __construct(private readonly Settings $settings) {}
+
     /**
-     * @param Plugin $plugin
-     * @return ActiveQuery
+     * Key pairs that belong to a plugin.
+     *
+     * @return Builder<KeyChainRecord>
      */
-    public function findByPlugin(Plugin $plugin)
+    public function findByPlugin(PluginInterface $plugin): Builder
     {
-        return KeyChainRecord::find()->where([
-            'pluginHandle' => $plugin->handle,
-        ]);
+        return KeyChainRecord::query()->where('pluginHandle', $plugin->handle);
     }
 
     /**
-     * @param KeyChainRecord $keyChainRecord
-     * @return bool
+     * Validates (unless `$runValidation` is false) and saves a key pair.
      */
-    public function save(KeyChainRecord $keyChainRecord, $runValidation = true, $attributeNames = null)
+    public function save(KeyChainRecord $record, bool $runValidation = true): bool
     {
-        if (!$runValidation && $keyChainRecord->validate()) {
+        if ($runValidation && ! $record->validate()) {
             return false;
         }
 
-        return $keyChainRecord->save();
+        return $record->save();
+    }
+
+    public function delete(KeyChainRecord $record): bool
+    {
+        return (bool) $record->delete();
+    }
+
+    public function create(KeyPairInterface $keyPair): KeyChainRecord
+    {
+        return $keyPair->create();
     }
 
     /**
-     * @param KeyChainRecord $keyChainRecord
-     * @return false|int
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * Generates and saves an OpenSSL key pair using the `opensslDefaults` setting.
+     *
+     * @param  array<string, mixed>  $attributes  Record attributes to set, e.g. `pluginHandle`. `isEncrypted`
+     *                                            defaults to the `encryptByDefault` setting.
      */
-    public function delete(KeyChainRecord $keyChainRecord)
+    public function generateOpenssl(array $attributes = []): KeyChainRecord
     {
-        return $keyChainRecord->delete();
-    }
+        $record = new OpenSSL($this->settings->opensslDefaults)->create();
+        $record->isEncrypted = $this->settings->encryptByDefault;
+        $record->fill(array_diff_key($attributes, array_flip(['key', 'certificate'])));
 
-    /**
-     * @param KeyPairInterface $keyPairConfig
-     * @return KeyChainRecord
-     */
-    public function create(KeyPairInterface $keyPairConfig)
-    {
-        return $keyPairConfig->create();
-    }
+        $this->save($record);
 
-    /**
-     * @param array $config
-     * @return KeyChainRecord
-     */
-    public function generateOpenssl($config = [])
-    {
-        /**
-         * Create the key pair using the defaults
-         */
-        $openssl = new OpenSSL(
-            KeyChain::getInstance()->getSettings()->opensslDefaults
-        );
-        $keyPair = $openssl->create();
-
-        /**
-         * default this to false.
-         */
-        $keyPair->isEncrypted = false;
-
-        /**
-         * Merge in any configs passed
-         */
-        \Craft::configure($keyPair, $config);
-
-        /**
-         * Save
-         */
-        $this->save($keyPair);
-
-        return $keyPair;
-    }
-
-    /**
-     * @param KeyChainRecord $record
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function decrypt(KeyChainRecord $record)
-    {
-        if ($record->isEncrypted && !$record->isDecrypted) {
-            $record->decryptedKey = \Craft::$app->getSecurity()->decryptByKey(
-                base64_decode($record->key),
-                \Craft::$app->getConfig()->getGeneral()->securityKey
-            );
-            $record->decryptedCertificate = \Craft::$app->getSecurity()->decryptByKey(
-                base64_decode($record->certificate),
-                \Craft::$app->getConfig()->getGeneral()->securityKey
-            );
-        } else {
-            $record->decryptedKey = $record->key;
-            $record->decryptedCertificate = $record->certificate;
-        }
-    }
-
-    /**
-     * @param KeyChainRecord $record
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function encrypt(KeyChainRecord $record)
-    {
-        if ($record->isEncrypted && $record->isDecrypted) {
-            /**
-             * Encrypt data at rest
-             */
-            $record->key = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
-                $record->key,
-                \Craft::$app->getConfig()->getGeneral()->securityKey
-            ));
-            $record->certificate = base64_encode(\Craft::$app->getSecurity()->encryptByKey(
-                $record->certificate,
-                \Craft::$app->getConfig()->getGeneral()->securityKey
-            ));
-        }
+        return $record;
     }
 }

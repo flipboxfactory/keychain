@@ -1,82 +1,37 @@
 <?php
 
+declare(strict_types=1);
 
 namespace flipbox\keychain\records;
 
-use yii\base\Model;
-
 /**
- * Trait Ember
- * @package flipbox\saml\core\records
+ * Enabled/disabled helpers for records with an `enabled` column.
+ *
  * @property bool $enabled
  */
 trait EmberTrait
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableAlias()
+    public function isEnabled(): bool
     {
-        return static::TABLE_ALIAS;
+        return (bool) $this->enabled;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public function isDisabled(): bool
     {
-        return '{{%' . static::tableAlias() . '}}';
+        return ! $this->isEnabled();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function stateRules()
-    {
-        return [
-            [
-                [
-                    'enabled',
-                ],
-                'safe',
-                'on' => [
-                    Model::SCENARIO_DEFAULT,
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isEnabled()
-    {
-        return (bool)$this->enabled;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isDisabled()
-    {
-        return !$this->isEnabled();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function toEnabled()
+    public function toEnabled(): static
     {
         $this->enabled = true;
+
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function toDisabled()
+    public function toDisabled(): static
     {
         $this->enabled = false;
+
         return $this;
     }
 }
