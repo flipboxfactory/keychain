@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace flipbox\keychain\models;
 
 use CraftCms\Cms\Plugin\PluginSettings;
+use flipbox\keychain\keypair\OpenSSL;
+use flipbox\keychain\services\KeyChainService;
 
 class Settings extends PluginSettings
 {
@@ -16,8 +18,8 @@ class Settings extends PluginSettings
     /**
      * Defaults for generated OpenSSL key pairs.
      *
-     * @see \flipbox\keychain\keypair\OpenSSL For the options.
-     * @see \flipbox\keychain\services\KeyChainService::generateOpenssl() For the primary use.
+     * @see OpenSSL For the options.
+     * @see KeyChainService::generateOpenssl() For the primary use.
      *
      * @var array<string, mixed>
      */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace flipbox\keychain\records;
 
+use Carbon\CarbonInterface;
 use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Cms\Shared\Concerns\HasUid;
 use Illuminate\Support\Facades\Crypt;
@@ -29,6 +30,8 @@ use function CraftCms\Cms\t;
  * @property bool $enabled
  * @property bool $isEncrypted
  * @property string $uid
+ * @property CarbonInterface|null $dateCreated
+ * @property CarbonInterface|null $dateUpdated
  */
 class KeyChainRecord extends BaseModel
 {

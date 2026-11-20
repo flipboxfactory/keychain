@@ -1,79 +1,78 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 3/18/18
- * Time: 9:45 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\controllers\cp;
 
-use craft\base\Plugin;
-use craft\helpers\UrlHelper;
-use craft\web\Controller;
+use CraftCms\Cms\Cp\Data\ActionItem;
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Plugin\Contracts\PluginInterface;
+use CraftCms\Cms\Support\Url;
 use flipbox\keychain\KeyChain;
 
-abstract class AbstractController extends Controller
+/**
+ * Base for keychain's control panel controllers.
+ *
+ * Other plugins can show keychain's screens in their own section (e.g. `saml-sp/keychain`) by extending the view
+ * controllers, returning themselves from {@see getPlugin()} and routing to them from their `routes/cp.php`.
+ */
+abstract class AbstractController
 {
-    /**
-     * @return Plugin
-     */
-    abstract protected function getPlugin();
+    use RespondsWithFlash;
 
     /**
-     * @return array
+     * The plugin whose key pairs are managed.
      */
-    protected function getBaseVariables()
+    abstract protected function getPlugin(): PluginInterface;
+
+    protected function isKeyChain(): bool
     {
-        $variables = [
-            'pluginHandle' => $this->getPlugin()->getUniqueId(),
-            'title' => $this->getPlugin()->name . ' - ' . KeyChain::getInstance()->name,
-            // Set the "Continue Editing" URL
-            'continueEditingUrl' => $this->getBaseCpPath(),
-            'baseActionPath' => $this->getBaseActionPath(),
-            'baseCpPath' => $this->getBaseCpPath(),
-            'actions' => [],
-        ];
-
-
-        if (!($this->getPlugin() instanceof KeyChain)) {
-            $variables['crumbs'][] = [
-                'url' => UrlHelper::cpUrl($this->getPlugin()->getUniqueId()),
-                'label' => $this->getPlugin()->name,
-            ];
-        }
-        $variables['crumbs'][] = [
-            'url' => UrlHelper::cpUrl($variables['baseCpPath']),
-            'label' => 'KeyChain',
-        ];
-        return $variables;
+        return $this->getPlugin() instanceof KeyChain;
     }
 
     /**
-     * @return string
-     */
-    protected function getBaseActionPath(): string
-    {
-        return KeyChain::getInstance()->getUniqueId();
-    }
-
-    /**
-     * @return string
+     * The CP path of the key pair screens, e.g. `keychain` or `saml-sp/keychain`.
      */
     protected function getBaseCpPath(): string
     {
-        if ($this->getPlugin() instanceof KeyChain) {
-            return KeyChain::getInstance()->getUniqueId();
-        }
-        return $this->getPlugin()->getUniqueId() . '/' . KeyChain::getInstance()->getUniqueId();
+        $handle = KeyChain::getInstance()->handle;
+
+        return $this->isKeyChain() ? $handle : $this->getPlugin()->handle.'/'.$handle;
     }
 
     /**
-     * @param array $variables
-     * @return array
+     * The path that keychain's form actions live under (`actions/<this>/upsert/…`).
      */
-    protected function beforeRender(array $variables = [])
+    protected function getBaseActionPath(): string
     {
-        return $variables;
+        return KeyChain::getInstance()->handle;
+    }
+
+    protected function actionUrl(string $action): string
+    {
+        return Url::actionUrl($this->getBaseActionPath().'/'.$action);
+    }
+
+    protected function title(?string $suffix = null): string
+    {
+        $title = ($this->isKeyChain() ? '' : $this->getPlugin()->name.': ').KeyChain::getInstance()->name;
+
+        return $suffix === null ? (string) $title : "$title: $suffix";
+    }
+
+    /**
+     * @return list<ActionItem>
+     */
+    protected function crumbs(): array
+    {
+        $crumbs = [];
+
+        if (! $this->isKeyChain()) {
+            $crumbs[] = new ActionItem()->label((string) $this->getPlugin()->name)->href(Url::cpUrl($this->getPlugin()->handle));
+        }
+
+        $crumbs[] = new ActionItem()->label('KeyChain')->href(Url::cpUrl($this->getBaseCpPath()));
+
+        return $crumbs;
     }
 }
