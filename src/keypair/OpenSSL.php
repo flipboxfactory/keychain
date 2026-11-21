@@ -1,77 +1,112 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/1/18
- * Time: 9:52 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\keypair;
 
-use craft\base\Model;
+use CraftCms\Cms\Component\Component;
 use flipbox\keychain\records\KeyChainRecord;
+use RuntimeException;
 
-class OpenSSL extends Model implements KeyPairInterface
+/**
+ * Generates an RSA key pair with a self-signed certificate.
+ */
+class OpenSSL extends Component implements KeyPairInterface
 {
-    public $digestAlgorithm = 'sha256';
-    public $keyBits = 2048;
+    /**
+     * Distinguished name fields, in the order OpenSSL prompts for them.
+     */
+    public const array DN_FIELDS = [
+        'countryName',
+        'stateOrProvinceName',
+        'localityName',
+        'organizationName',
+        'organizationalUnitName',
+        'commonName',
+        'emailAddress',
+    ];
 
-    public $daysExpiry = 365;
+    public string $digestAlgorithm = 'sha256';
 
-    public $description = 'What is this key for?';
+    public int $keyBits = 2048;
 
-    public $countryName;
-    public $stateOrProvinceName;
-    public $localityName;
-    public $organizationName;
-    public $organizationalUnitName;
-    public $commonName;
-    public $emailAddress;
+    public int $daysExpiry = 365;
 
-    public function attributes()
-    {
-        return [
-            'countryName',
-            'stateOrProvinceName',
-            'localityName',
-            'organizationName',
-            'organizationalUnitName',
-            'commonName',
-            'emailAddress',
-        ];
-    }
+    public ?string $description = 'What is this key for?';
+
+    public ?string $countryName = null;
+
+    public ?string $stateOrProvinceName = null;
+
+    public ?string $localityName = null;
+
+    public ?string $organizationName = null;
+
+    public ?string $organizationalUnitName = null;
+
+    public ?string $commonName = null;
+
+    public ?string $emailAddress = null;
 
     public function create(): KeyChainRecord
     {
+        $privateKey = openssl_pkey_new([
+            'private_key_bits' => $this->keyBits,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+        ]) ?: throw new RuntimeException('OpenSSL couldn’t generate a private key.');
 
-        // Generate a new private (and public) key pair
-        $privkey = openssl_pkey_new([
-            "private_key_bits" => $this->keyBits,
-            "private_key_type" => OPENSSL_KEYTYPE_RSA,
-        ]);
-
-        // Generate a certificate signing request
         // OpenSSL rejects empty DN entries, so leave blank fields out instead of failing
-        $dn = array_filter(
-            $this->toArray($this->attributes()),
-            fn($value) => $value !== null && $value !== ''
-        );
-        $csr = openssl_csr_new($dn, $privkey, ['digest_alg' => $this->digestAlgorithm]);
+        $dn = array_filter($this->distinguishedName(), fn ($value) => $value !== null && $value !== '');
+        $options = ['digest_alg' => $this->digestAlgorithm];
 
-        // Generate a self-signed cert, valid for 365 days
-        $x509 = openssl_csr_sign($csr, null, $privkey, $this->daysExpiry, ['digest_alg' => $this->digestAlgorithm]);
+        $csr = openssl_csr_new($dn, $privateKey, $options);
+        if (! $csr instanceof \OpenSSLCertificateSigningRequest) {
+            throw new RuntimeException('OpenSSL couldn’t create a certificate signing request.');
+        }
 
-        // Save your private key, CSR and self-signed cert for later use
-        openssl_csr_export($csr, $csrout);
-        openssl_x509_export($x509, $certout);
-        openssl_pkey_export($privkey, $pkeyout);
+        $x509 = openssl_csr_sign($csr, null, $privateKey, $this->daysExpiry, $options)
+            ?: throw new RuntimeException('OpenSSL couldn’t sign the certificate.');
 
-        return new KeyChainRecord([
-            'certificate' => $certout,
-            'key' => $pkeyout,
+        if (! openssl_x509_export($x509, $certificate) || ! openssl_pkey_export($privateKey, $key)) {
+            throw new RuntimeException('OpenSSL couldn’t export the key pair.');
+        }
+
+        $record = new KeyChainRecord([
             'class' => self::class,
-            'settings' => $this->toArray(),
+            'settings' => $this->settings(),
             'description' => $this->description,
         ]);
+        $record->setKeyPair($key, $certificate);
+
+        return $record;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function distinguishedName(): array
+    {
+        $dn = [];
+        foreach (self::DN_FIELDS as $field) {
+            $dn[$field] = $this->$field;
+        }
+
+        return $dn;
+    }
+
+    /**
+     * The generation options, stored with the record. No key material.
+     *
+     * @return array<string, mixed>
+     */
+    private function settings(): array
+    {
+        return [
+            'digestAlgorithm' => $this->digestAlgorithm,
+            'keyBits' => $this->keyBits,
+            'daysExpiry' => $this->daysExpiry,
+            'description' => $this->description,
+            ...$this->distinguishedName(),
+        ];
     }
 }

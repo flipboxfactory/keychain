@@ -1,21 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 3/13/18
- * Time: 10:02 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\controllers\cp\view;
 
-use flipbox\keychain\controllers\cp\AbstractController;
+use CraftCms\Cms\Plugin\Contracts\PluginInterface;
 use flipbox\keychain\KeyChain;
 
-class GeneralController extends AbstractController
+class GeneralController extends AbstractGeneralController
 {
-    public const TEMPLATE_INDEX = 'keychain/_cp';
-
-    protected function getPlugin()
+    protected function getPlugin(): PluginInterface
     {
         return KeyChain::getInstance();
     }

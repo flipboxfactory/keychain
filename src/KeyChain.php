@@ -1,104 +1,39 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/5/18
- * Time: 10:01 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain;
 
-use craft\base\Model;
-use craft\base\Plugin;
-use craft\events\RegisterUrlRulesEvent;
-use craft\web\UrlManager;
+use CraftCms\Cms\Plugin\Plugin;
 use flipbox\keychain\models\Settings;
 use flipbox\keychain\services\KeyChainService;
-use yii\base\Event;
 
+/**
+ * Stores X.509 key pairs for other plugins.
+ *
+ * Control panel pages are in `routes/cp.php`, form actions in `routes/actions.php` (`actions/keychain/…`).
+ *
+ * @method Settings getSettings()
+ */
 class KeyChain extends Plugin
 {
-//    public $hasCpSection = true;
+    public string $schemaVersion = '2.0.0';
 
-    /**
-     * Initializes the module.
-     */
-    public function init(): void
+    public function register(): void
     {
-        parent::init();
+        parent::register();
 
-        /**
-         * Init Modules, Components, and Events
-         */
-        $this->initComponents();
-        $this->initEvents();
+        // Lets the service and controllers type-hint the plugin's settings
+        $this->app->singleton(Settings::class, fn () => $this->getSettings());
     }
 
-    public function initEvents()
+    public function getService(): KeyChainService
     {
-        // CP routes
-        Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_CP_URL_RULES,
-            [self::class, 'onRegisterCpUrlRules']
-        );
+        return $this->app->make(KeyChainService::class);
     }
 
-    /**
-     * Init Continued
-     */
-
-    /**
-     *
-     */
-    protected function initComponents()
+    protected static function createSettings(): Settings
     {
-        $this->setComponents([
-            'keyChain' => KeyChainService::class,
-        ]);
-    }
-
-    /**
-     * COMPONENTS
-     */
-
-    /**
-     * @return KeyChainService
-     */
-    public function getService()
-    {
-        return $this->get('keyChain');
-    }
-
-    /**
-     * @return Settings
-     */
-    public function getSettings(): ?Model
-    {
-        return parent::getSettings();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createSettingsModel(): ?Model
-    {
-        return new Settings();
-    }
-
-    /**
-     * @param RegisterUrlRulesEvent $event
-     */
-    public static function onRegisterCpUrlRules(RegisterUrlRulesEvent $event)
-    {
-        $event->rules = array_merge(
-            $event->rules,
-            [
-                'keychain' => 'keychain/cp/view/general/index',
-                'keychain/new' => 'keychain/cp/view/edit/index',
-                'keychain/<keypairId:\d+>' => 'keychain/cp/view/edit/index',
-                'keychain/openssl' => 'keychain/cp/view/edit/openssl',
-            ]
-        );
+        return new Settings;
     }
 }

@@ -11,24 +11,31 @@ KeyChain stores X.509 certificates and their private keys so other plugins can u
 
 - Generate self-signed OpenSSL key pairs from the control panel
 - Bring your own key pair (BYOK)
-- Encrypt keys at rest with Craft's security key
+- Encrypt keys at rest with the application key (`APP_KEY`)
 - Validates that a key and certificate belong together
 
 ## Requirements
 
-- Craft CMS 5
-- PHP 8.2+ with the OpenSSL extension
+- Craft CMS 6 and PHP 8.5+ with the OpenSSL extension. For Craft 5, use KeyChain 5.x.
 
 ## Installation
 
 ```bash
 composer require flipboxfactory/keychain
-php craft plugin/install keychain
+php artisan craft:plugin:install keychain
 ```
 
-Key pairs are managed under **KeyChain** in the control panel.
+Admins manage key pairs at `/admin/keychain` in the control panel. Plugins that use KeyChain also link to their own key pair screens.
 
-Private keys aren't shown when you edit a key pair. Leave the field blank to keep the current key, paste a new one to replace it, or click **Reveal current key** (admins only, after re-entering your password) to see it.
+Private keys aren't shown when you edit a key pair. Leave the field blank to keep the current key, or paste a new one to replace it.
+
+## Upgrading from Craft 5
+
+1. On Craft 5, update to the latest KeyChain 5.x and run migrations.
+2. Upgrade to Craft 6 following Craft's upgrade guide, and require `flipboxfactory/keychain:^6.0`.
+3. **Keep `CRAFT_SECURITY_KEY` in your `.env` file until migrations have run.** Craft's guide says to remove it, but encrypted key pairs from Craft 5 can only be decrypted with it. KeyChain's migration re-encrypts them with `APP_KEY`, then you can remove it. Without it, the migration stops and changes nothing.
+
+For developers: `findByPlugin()` returns an Eloquent query (`->get()` instead of `->all()`), `KeyChainRecord` is an Eloquent model with `validate()`/`errors()`, and the Yii console command base class and `GenerateKeyPair` asset bundle are gone.
 
 ## Usage
 
@@ -41,7 +48,7 @@ $service = KeyChain::getInstance()->getService();
 $keyPair = $service->generateOpenssl(['pluginHandle' => 'my-plugin']);
 
 // Key pairs belonging to a plugin
-$keyPairs = $service->findByPlugin($myPlugin)->all();
+$keyPairs = $service->findByPlugin($myPlugin)->get();
 
 // PEM strings, decrypted if stored encrypted
 $keyPair->getDecryptedKey();
@@ -50,7 +57,7 @@ $keyPair->getDecryptedCertificate();
 
 ## Settings
 
-Override the defaults in `config/keychain.php`:
+Override the defaults in `config/craft/keychain.php` (publish a starting point with `php artisan vendor:publish --tag=keychain`):
 
 ```php
 return [
@@ -68,18 +75,17 @@ return [
 
 ## Development
 
-Checks follow Craft's [coding guidelines](https://craftcms.com/docs/5.x/extend/coding-guidelines.html): [craftcms/ecs](https://github.com/craftcms/ecs) and [craftcms/phpstan](https://github.com/craftcms/phpstan). Tests use Codeception with Craft's test module and need a MySQL database:
+For a local Craft 6 site running this working copy, run `dev/up` (needs Docker; see [dev/README.md](dev/README.md)).
+
+
+Tests use Pest with Orchestra Testbench and run on SQLite by default; set `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` to use MySQL or PostgreSQL. Style is checked with Pint, static analysis with Larastan.
 
 ```bash
-docker run -d --rm --name keychain-test-mysql -e MYSQL_ROOT_PASSWORD=password \
-  -e MYSQL_DATABASE=keychain_test -p 127.0.0.1:3306:3306 mysql:8.0
-cp tests/.env.example tests/.env   # adjust CRAFT_DB_* if needed
-
 composer check      # check-cs + phpstan + test
-composer fix-cs     # auto-fix coding standards
+composer fix-cs     # auto-fix code style
 ```
 
-CI runs the same checks on every push and pull request.
+CI runs the same checks on SQLite, MySQL and PostgreSQL for every push and pull request.
 
 ## Contributing
 

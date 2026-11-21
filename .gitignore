@@ -2,9 +2,9 @@
 composer.lock
 .DS_Store
 .idea
+.phpunit.result.cache
+.phpunit.cache
 
 # Tests
 tests/.env
-tests/_support/_generated
-tests/_craft/config/project/
-cpresources/
+tests/_output

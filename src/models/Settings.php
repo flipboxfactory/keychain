@@ -1,29 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace flipbox\keychain\models;
 
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
+use flipbox\keychain\keypair\OpenSSL;
+use flipbox\keychain\services\KeyChainService;
 
-class Settings extends Model
+class Settings extends PluginSettings
 {
     /**
-     * Whether or not to encrypt the key and cert by default.
-     * This will use the Craft security key to encrypt the strings.
-     *
-     * @var bool
+     * Whether new key pairs are encrypted at rest (with Laravel's `Crypt` and `APP_KEY`) unless asked otherwise.
      */
-    public $encryptByDefault = true;
+    public bool $encryptByDefault = true;
 
     /**
-     * Configuration the OpenSSL Model. This is used to autogenerate openssl key pairs.
-     * @see \flipbox\keychain\keypair\OpenSSL For config.
-     * @see \flipbox\keychain\services\KeyChainService::generateOpenssl() For primary use.
-     * @var array
+     * Defaults for generated OpenSSL key pairs.
+     *
+     * @see OpenSSL For the options.
+     * @see KeyChainService::generateOpenssl() For the primary use.
+     *
+     * @var array<string, mixed>
      */
-    public $opensslDefaults = [
+    public array $opensslDefaults = [
         'digestAlgorithm' => 'sha256',
         'keyBits' => 2048,
-        'daysExpiry' => 365 * 2, //2 years
+        'daysExpiry' => 365 * 2,
         'description' => 'My Key Pair',
         'countryName' => 'US',
         'stateOrProvinceName' => 'Colorado',

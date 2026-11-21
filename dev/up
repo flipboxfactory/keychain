@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Start a fresh, throwaway KeyChain sandbox: Craft 6 + KeyChain from this working copy, served by Testbench.
+# Every run starts from scratch; dev/down stops it and deletes its data. See dev/README.md.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PORT="${SANDBOX_PORT:-8090}"
+NAME="keychain-sandbox"
+IMAGE="keychain-sandbox-php"
+
+die() { echo "✖ $*" >&2; exit 1; }
+command -v docker >/dev/null || die "docker is required"
+
+echo "→ Resetting sandbox"
+"$ROOT/dev/down" >/dev/null
+
+if (exec 3<>"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
+    die "port $PORT is in use; free it or run SANDBOX_PORT=<port> dev/up"
+fi
+
+echo "→ Building the PHP 8.5 image (first run takes a few minutes)"
+docker build -q -t "$IMAGE" "$ROOT/dev" >/dev/null
+
+run() {
+    docker run --rm -v "$ROOT:/app" -v keychain-sandbox-composer:/tmp/composer-cache \
+        -e COMPOSER_CACHE_DIR=/tmp/composer-cache -e SANDBOX_PORT="$PORT" "$IMAGE" "$@"
+}
+
+echo "→ Installing dependencies"
+run composer install --no-interaction --no-progress --quiet
+
+echo "→ Installing Craft + KeyChain"
+run composer workbench:setup --quiet
+
+echo "→ Starting the server"
+docker run -d --name "$NAME" -v "$ROOT:/app" -p "$PORT:$PORT" "$IMAGE" \
+    php vendor/bin/testbench serve --host=0.0.0.0 --port="$PORT" >/dev/null
+
+for _ in $(seq 1 60); do
+    curl -fs -o /dev/null "http://localhost:$PORT/admin/login" && break
+    [ -n "$(docker ps -q -f name="^$NAME$")" ] || { docker logs "$NAME" | tail -40; die "server stopped (logs above)"; }
+    sleep 1
+done
+curl -fsS -o /dev/null "http://localhost:$PORT/admin/login" || { docker logs "$NAME" | tail -40; die "server didn't start"; }
+
+cat <<INFO
+
+✔ Sandbox ready
+    Control panel   http://localhost:$PORT/admin   (admin / password)
+    KeyChain        http://localhost:$PORT/admin/keychain
+
+  Code edits apply on the next request. Logs:  docker logs -f $NAME
+  Tear down:  dev/down
+INFO

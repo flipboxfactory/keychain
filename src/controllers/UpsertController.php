@@ -1,18 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/7/18
- * Time: 11:16 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\controllers;
 
+use CraftCms\Cms\Plugin\Contracts\PluginInterface;
 use flipbox\keychain\KeyChain;
 
 class UpsertController extends AbstractUpsertController
 {
-    protected function getPlugin()
+    protected function getPlugin(): PluginInterface
     {
         return KeyChain::getInstance();
     }
