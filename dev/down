@@ -6,5 +6,5 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 docker rm -f keychain-sandbox >/dev/null 2>&1 || true
 cd "$ROOT/workbench"
-rm -rf .env database/*.sqlite* storage bootstrap/cache public/vendor public/cpresources config/craft cms
+rm -rf .env database/*.sqlite* storage bootstrap/cache/*.php public/vendor public/cpresources config/craft cms
 echo "✔ Sandbox removed"

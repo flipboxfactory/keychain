@@ -1,7 +1,8 @@
 .env
 !.env.example
 /vendor
-/bootstrap/cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
 /database/*.sqlite*
 /config/craft/project
 /config/craft/license.key
