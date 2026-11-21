@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Database\Migration;
 use flipbox\keychain\records\KeyChainRecord;
 use flipbox\keychain\security\LegacyEncryption;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\DB;
  * Re-encrypts key pairs from keychain 5.x for Craft 6.
  *
  * keychain 5.x encrypted key pairs with Craft 5's security key (`CRAFT_SECURITY_KEY`); 6.x uses Laravel's `Crypt`
- * (`APP_KEY`). Craft's upgrade guide removes `CRAFT_SECURITY_KEY`, so it has to stay set until this migration has
- * run. Without it, the migration fails rather than leaving key pairs nobody can decrypt; nothing is changed.
+ * (`APP_KEY`). Craft's upgrade guide removes `CRAFT_SECURITY_KEY`, and Craft 6 itself no longer reads it, so it has
+ * to stay set in the environment (or `.env`) until this migration has run. Without it, the migration fails rather
+ * than leaving key pairs nobody can decrypt; nothing is changed.
  *
  * Every row is decrypted and verified before any is written, and all rows are written in one transaction.
  */
@@ -60,11 +61,12 @@ return new class extends Migration
 
     private function decryptLegacy(?string $value, int $id, string $column): string
     {
-        $securityKey = app(GeneralConfig::class)->securityKey;
+        // Craft 6 no longer has a security key setting, so read the Craft 5 variable directly
+        $securityKey = (string) Env::get('CRAFT_SECURITY_KEY', '');
 
         if ($securityKey === '') {
             throw new RuntimeException(
-                "Key pair $id is encrypted with your Craft 5 security key, which isn't set. Set CRAFT_SECURITY_KEY in your .env file to the security key from your Craft 5 site, run migrations again, and only then remove it."
+                "Key pair $id is encrypted with your Craft 5 security key, which isn't set. Set CRAFT_SECURITY_KEY in your .env file to the security key from your Craft 5 site (and run `php artisan config:clear` if you cache config), run migrations again, and only then remove it."
             );
         }
 

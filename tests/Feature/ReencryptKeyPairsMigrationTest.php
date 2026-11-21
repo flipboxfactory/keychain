@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use CraftCms\Cms\Config\GeneralConfig;
 use flipbox\keychain\keypair\Byok;
 use flipbox\keychain\records\KeyChainRecord;
 use Illuminate\Support\Facades\Crypt;
@@ -38,9 +37,25 @@ function insertCraft5Row(array $values = []): int
     ]);
 }
 
-beforeEach(function () {
-    app(GeneralConfig::class)->securityKey = craft5Fixture()['securityKey'];
-});
+/**
+ * Sets (or with null, unsets) CRAFT_SECURITY_KEY, as an upgrading site's .env would.
+ */
+function setCraft5SecurityKey(?string $key): void
+{
+    if ($key === null) {
+        putenv('CRAFT_SECURITY_KEY');
+        unset($_ENV['CRAFT_SECURITY_KEY'], $_SERVER['CRAFT_SECURITY_KEY']);
+
+        return;
+    }
+
+    putenv("CRAFT_SECURITY_KEY=$key");
+    $_ENV['CRAFT_SECURITY_KEY'] = $_SERVER['CRAFT_SECURITY_KEY'] = $key;
+}
+
+beforeEach(fn () => setCraft5SecurityKey(craft5Fixture()['securityKey']));
+
+afterEach(fn () => setCraft5SecurityKey(null));
 
 it('re-encrypts Craft 5 key pairs with APP_KEY', function () {
     $fixture = craft5Fixture();
@@ -74,7 +89,7 @@ it('can run again without touching re-encrypted rows', function () {
 
 it('fails without the Craft 5 security key, changing nothing', function () {
     $id = insertCraft5Row();
-    app(GeneralConfig::class)->securityKey = '';
+    setCraft5SecurityKey(null);
 
     expect(fn () => reencryptKeyPairs())->toThrow(RuntimeException::class, 'CRAFT_SECURITY_KEY');
 
@@ -84,7 +99,7 @@ it('fails without the Craft 5 security key, changing nothing', function () {
 it('fails with the wrong security key, changing nothing', function () {
     $first = insertCraft5Row();
     $second = insertCraft5Row();
-    app(GeneralConfig::class)->securityKey = 'a-different-security-key';
+    setCraft5SecurityKey('a-different-security-key');
 
     expect(fn () => reencryptKeyPairs())->toThrow(RuntimeException::class, 'Couldn\'t decrypt the key of key pair '.$first);
 
@@ -103,7 +118,7 @@ it('converts nothing if any row can’t be decrypted', function () {
 
 it('doesn’t leak the security key or key material in its errors', function () {
     insertCraft5Row();
-    app(GeneralConfig::class)->securityKey = 'secret-wrong-security-key';
+    setCraft5SecurityKey('secret-wrong-security-key');
 
     try {
         reencryptKeyPairs();
