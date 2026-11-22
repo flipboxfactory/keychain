@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## 6.0.0-beta.1 - 2026-11-22
 
 ### Changed
 - Requires Craft CMS 6 and PHP 8.5. KeyChain is a native Craft 6 plugin and doesn't need the Yii2 adapter.
