@@ -1,6 +1,25 @@
 Changelog
 =========
 
+## Unreleased
+
+### Changed
+- Requires Craft CMS 6 and PHP 8.5. KeyChain is a native Craft 6 plugin and doesn't need the Yii2 adapter.
+- Key pairs are encrypted at rest with Laravel's `Crypt` and the application key (`APP_KEY`). An upgrade migration re-encrypts key pairs from 5.x; it needs `CRAFT_SECURITY_KEY` (your Craft 5 security key) until it has run. See "Upgrading from Craft 5" in the README.
+- Control panel screens use Craft 6's native UI, and require an admin.
+- Key pairs generated with `generateOpenssl()` (e.g. other plugins' "generate" buttons) follow the `encryptByDefault` setting instead of being stored unencrypted.
+- `KeyChainRecord` is an Eloquent model: `validate()` and `errors()` replace Yii's validation, `findByPlugin()` returns an Eloquent query, and `setKeyPair()` sets the plaintext pair. `getDecryptedKey()`, `getDecryptedCertificate()` and `setSubmittedKeyPair()` are unchanged.
+- Plugin config overrides move to `config/craft/keychain.php`.
+
+### Removed
+- **Reveal current key** on the edit screen, for now.
+- The `flipbox\keychain\cli\AbstractOpenSSL` console controller, `OpenSSLCliUtil` trait and `GenerateKeyPair` asset bundle.
+
+### Fixed
+- `KeyChainService::save()` skipped validation unless `$runValidation` was false.
+- Actions for a key pair that doesn't exist returned an error instead of a 404.
+- The generate action's JSON response returns only the new key pair's ID and description.
+
 ## 5.0.3 - 2026-11-07
 
 ### Security

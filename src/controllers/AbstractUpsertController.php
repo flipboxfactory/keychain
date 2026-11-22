@@ -1,283 +1,135 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 2/7/18
- * Time: 11:16 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\controllers;
 
-use Craft;
-use craft\web\Request;
+use CraftCms\Cms\Support\Flash;
+use CraftCms\Cms\Support\Url;
 use flipbox\keychain\controllers\cp\AbstractController;
-use flipbox\keychain\controllers\cp\view\EditController;
 use flipbox\keychain\KeyChain;
 use flipbox\keychain\keypair\Byok;
 use flipbox\keychain\keypair\OpenSSL;
 use flipbox\keychain\records\KeyChainRecord;
-use yii\web\NotFoundHttpException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
+use function CraftCms\Cms\t;
+
+/**
+ * Form actions for key pairs (`actions/keychain/upsert/…`). Every route requires an admin (see `routes/actions.php`)
+ * and CSRF protection, which Craft's web middleware applies to POST and DELETE requests.
+ *
+ * Responses never contain a private key, and failed submissions never flash one to the session.
+ */
 abstract class AbstractUpsertController extends AbstractController
 {
     /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
+     * Saves a "bring your own key" key pair.
      */
-    public function actionIndex()
+    public function index(Request $request): Response
     {
-        $this->requireAdmin(false);
-        $this->requirePostRequest();
+        $keyPair = $request->filled('identifier')
+            ? $this->findKeyPair($request->input('identifier'))
+            : new Byok(['description' => $request->string('description')->toString()])->create();
 
-        /** @var Request $request */
-        $request = Craft::$app->request;
-        $id = $request->getBodyParam('identifier');
-        if ($id) {
-            $keypair = $this->findKeyPair($id);
-        } else {
-            $keypair = (new Byok([
-                'description' => $request->getBodyParam('description'),
-            ]))->create();
-        }
-
-        // A blank key keeps the stored one: the edit page doesn't render the private key.
-        $keypair->setSubmittedKeyPair(
-            $request->getBodyParam('key'),
-            $request->getBodyParam('certificate')
-        );
-        Craft::configure($keypair, [
-            'description' => $request->getBodyParam('description'),
-            'isEncrypted' => $request->getBodyParam('isEncrypted') ?: false,
-            'pluginHandle' => $request->getBodyParam('pluginHandle'),
+        // A blank key keeps the stored one: the edit screen never renders the private key
+        $keyPair->setSubmittedKeyPair($request->input('key'), $request->input('certificate'));
+        $keyPair->fill([
+            'description' => $request->input('description'),
+            'isEncrypted' => $request->boolean('isEncrypted'),
+            'enabled' => $request->has('enabled') ? $request->boolean('enabled') : $keyPair->enabled,
+            'pluginHandle' => $request->input('pluginHandle', $keyPair->pluginHandle),
         ]);
-        /**
-         * Make sure enabled as a value
-         */
-        if ($keypair->enabled === null) {
-            $keypair->enabled = true;
-        }
 
-
-        if (KeyChain::getInstance()->getService()->save($keypair)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keypair,
-                    ]
-                )
-            );
-        }
-
-        return $this->redirectToPostedUrl();
+        return $this->saveResponse($request, $keyPair);
     }
 
     /**
-     * Returns a key pair's decrypted private key, for the "Reveal" button on the edit page.
-     *
-     * Admin only, POST + CSRF, JSON, and an elevated session (the user re-enters their password).
-     *
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
-     * @throws NotFoundHttpException
+     * Generates and saves an OpenSSL key pair from the submitted distinguished name.
      */
-    public function actionRevealKey()
+    public function openssl(Request $request): Response
     {
-        $this->requireAdmin(false);
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-        $this->requireElevatedSession();
+        $keyPair = new OpenSSL(array_filter([
+            'description' => $request->input('description'),
+            ...$request->only(OpenSSL::DN_FIELDS),
+        ], fn ($value) => $value !== null))->create();
 
-        $keypair = $this->findKeyPair(Craft::$app->getRequest()->getRequiredBodyParam('identifier'));
-
-        $response = $this->asJson([
-            'key' => $keypair->getDecryptedKey(),
+        $keyPair->fill([
+            'enabled' => $request->boolean('enabled'),
+            'isEncrypted' => $request->boolean('isEncrypted'),
+            'pluginHandle' => $request->input('plugin'),
         ]);
-        $response->getHeaders()
-            ->set('Cache-Control', 'no-store, private')
-            ->set('Pragma', 'no-cache');
 
-        return $response;
+        return $this->saveResponse($request, $keyPair);
     }
 
     /**
-     * @param int|string $id
-     * @throws NotFoundHttpException
+     * Generates an OpenSSL key pair with the plugin's defaults, e.g. from another plugin's "generate" button.
      */
-    protected function findKeyPair($id): KeyChainRecord
+    public function generateOpenssl(Request $request): Response
     {
-        /** @var KeyChainRecord|null $keypair */
-        $keypair = KeyChainRecord::find()->where([
-            'id' => $id,
-        ])->one();
-
-        if (!$keypair) {
-            throw new NotFoundHttpException('Key pair not found.');
-        }
-
-        return $keypair;
-    }
-
-    /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public function actionOpenssl()
-    {
-        $this->requireAdmin(false);
-        $this->requirePostRequest();
-
-        /** @var Request $request */
-        $request = Craft::$app->request;
-
-        $keychainRecord = (new OpenSSL([
-            'description' => $request->getBodyParam('description'),
-            'countryName' => $request->getBodyParam('countryName'),
-            'stateOrProvinceName' => $request->getBodyParam('stateOrProvinceName'),
-            'localityName' => $request->getBodyParam('localityName'),
-            'organizationName' => $request->getBodyParam('organizationName'),
-            'organizationalUnitName' => $request->getBodyParam('organizationalUnitName'),
-            'commonName' => $request->getBodyParam('commonName'),
-            'emailAddress' => $request->getBodyParam('emailAddress'),
-        ]))->create();
-
-        Craft::configure($keychainRecord, [
-            'enabled' => $request->getBodyParam('enabled') ?: false,
-            'isEncrypted' => $request->getBodyParam('isEncrypted') ?: false,
-            'pluginHandle' => $request->getBodyParam('plugin'),
+        $keyPair = KeyChain::getInstance()->getService()->generateOpenssl([
+            'pluginHandle' => $request->input('plugin', $this->getPlugin()->handle),
         ]);
-        $keychainRecord->isDecrypted = true;
 
-        if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
-            );
+        if ($request->expectsJson()) {
+            return $keyPair->exists
+                ? new JsonResponse(['id' => $keyPair->id, 'description' => $keyPair->description])
+                : $this->asJsonFailure(t('Key pair didn’t save.', category: 'keychain'), ['errors' => $keyPair->errors()->getMessages()]);
         }
 
-        return $this->redirectToPostedUrl();
+        return $keyPair->exists
+            ? $this->asSuccess(t('Key pair saved.', category: 'keychain'))
+            : $this->asFailure(t('Key pair didn’t save.', category: 'keychain'));
     }
 
-    /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
-     */
-    public function actionGenerateOpenssl()
+    public function changeStatus(Request $request): Response
     {
-        $this->requireAdmin(false);
-        $this->requirePostRequest();
-        $config = [];
-        if ($plugin = Craft::$app->request->getParam('plugin')) {
-            $config = [
-                'pluginHandle' => $plugin,
-            ];
-        }
+        $keyPair = $this->findKeyPair($request->input('identifier'));
+        $keyPair->enabled = ! $keyPair->enabled;
 
-        /** @var KeyChainRecord $keyPair */
-        $keyPair = KeyChain::getInstance()->getService()->generateOpenssl($config);
-
-        if (Craft::$app->request->isAjax) {
-            return $this->asJson($keyPair->toArray());
-        }
-
-        if (!$keyPair->hasErrors()) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keyPair,
-                    ]
-                )
-            );
-        }
-
-        return $this->redirectToPostedUrl();
+        return $this->saveResponse($request, $keyPair);
     }
 
-
-    /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
-     */
-    public function actionChangeStatus()
+    public function delete(Request $request): Response
     {
-        $this->requireAdmin(false);
-        $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
+        $keyPair = $this->findKeyPair($request->input('identifier', $request->input('id')));
 
-        $keychainRecord = KeyChainRecord::find()->where([
-            'id' => $keypairId,
-        ])->one();
-
-        $keychainRecord->enabled = !$keychainRecord->enabled;
-
-        if (KeyChain::getInstance()->getService()->save($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair saved.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t save.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX . '/openssl',
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
-            );
+        if (! KeyChain::getInstance()->getService()->delete($keyPair)) {
+            return $this->asFailure(t('Key pair didn’t delete.', category: 'keychain'));
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asSuccess(t('Key pair deleted.', category: 'keychain'));
     }
 
-    /**
-     * @return \yii\web\Response
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
-     */
-    public function actionDelete()
+    protected function findKeyPair(mixed $id): KeyChainRecord
     {
-        $this->requireAdmin(false);
-        $keypairId = Craft::$app->request->getRequiredBodyParam('identifier');
+        abort_unless(is_numeric($id), 404, 'Key pair not found.');
 
-        $keychainRecord = KeyChainRecord::find()->where([
-            'id' => $keypairId,
-        ])->one();
+        return KeyChainRecord::query()->whereKey((int) $id)->firstOr(fn () => abort(404, 'Key pair not found.'));
+    }
 
-        if (false !== KeyChain::getInstance()->getService()->delete($keychainRecord)) {
-            Craft::$app->getSession()->setNotice(Craft::t('keychain', 'Key pair deleted.'));
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('keychain', 'Key pair didn\'t delete.'));
-            return $this->renderTemplate(
-                EditController::TEMPLATE_INDEX,
-                array_merge(
-                    $this->getBaseVariables(),
-                    [
-                        'keypair' => $keychainRecord,
-                    ]
-                )
+    private function saveResponse(Request $request, KeyChainRecord $keyPair): Response
+    {
+        if (KeyChain::getInstance()->getService()->save($keyPair)) {
+            return $this->asSuccess(
+                t('Key pair saved.', category: 'keychain'),
+                redirect: $this->getPostedRedirectUrl() ?? Url::cpUrl($this->getBaseCpPath()),
             );
         }
 
-        return $this->redirectToPostedUrl();
+        $errors = array_filter($keyPair->errors()->getMessages());
+
+        if ($request->expectsJson()) {
+            return $this->asJsonFailure(t('Key pair didn’t save.', category: 'keychain'), ['errors' => $errors]);
+        }
+
+        // Not asFailure(): that flashes all input, and the private key must never reach the session
+        $request->flashExcept(['key']);
+        Flash::error(t('Key pair didn’t save.', category: 'keychain'));
+
+        return back()->withErrors($errors);
     }
 }

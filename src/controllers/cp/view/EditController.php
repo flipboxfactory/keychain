@@ -1,22 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 3/13/18
- * Time: 10:13 PM
- */
+
+declare(strict_types=1);
 
 namespace flipbox\keychain\controllers\cp\view;
 
-use craft\base\Plugin;
+use CraftCms\Cms\Plugin\Contracts\PluginInterface;
 use flipbox\keychain\KeyChain;
 
 class EditController extends AbstractEditController
 {
-    /**
-     * @return Plugin
-     */
-    protected function getPlugin()
+    protected function getPlugin(): PluginInterface
     {
         return KeyChain::getInstance();
     }

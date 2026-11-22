@@ -8,20 +8,20 @@
     "craftcms",
     "openssl",
     "key pair",
-    "yii2"
+    "laravel"
   ],
   "require": {
-    "craftcms/cms": "^5.0.0",
+    "php": "^8.5",
+    "craftcms/cms": "^6.0.0-beta.1",
     "lib-openssl": "*"
   },
   "require-dev": {
-    "codeception/codeception": "^5.2",
-    "codeception/module-asserts": "^3.0",
-    "codeception/module-yii2": "^1.1.9",
-    "craftcms/ecs": "dev-main",
-    "craftcms/phpstan": "dev-main",
-    "phpstan/phpstan": "^2.1",
-    "vlucas/phpdotenv": "^5.4"
+    "larastan/larastan": "^3.13",
+    "laravel/pint": "^1.22",
+    "orchestra/testbench": "^11.0",
+    "pestphp/pest": "^5.0",
+    "pestphp/pest-plugin-laravel": "^5.0",
+    "phpstan/phpstan": "^2.1"
   },
   "autoload": {
     "psr-4": {
@@ -30,24 +30,39 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "flipbox\\keychain\\tests\\": "tests/"
+      "flipbox\\keychain\\tests\\": "tests/",
+      "CraftCms\\Cms\\Database\\Factories\\": "vendor/craftcms/cms/database/Factories/",
+      "Workbench\\App\\": "workbench/app/",
+      "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
     }
   },
   "scripts": {
-    "test": "codecept run unit",
-    "check-cs": "ecs check --ansi",
-    "fix-cs": "ecs check --ansi --fix",
+    "test": "pest",
+    "test-coverage": "pest --coverage-clover tests/_output/coverage.xml",
+    "check-cs": "pint --test",
+    "fix-cs": "pint",
     "phpstan": "phpstan --memory-limit=1G",
     "check": [
       "@check-cs",
       "@phpstan",
       "@test"
+    ],
+    "workbench:setup": [
+      "@php workbench/prepare.php",
+      "@php vendor/bin/testbench workbench:build --no-interaction"
+    ],
+    "serve": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php vendor/bin/testbench serve --host=127.0.0.1 --port=8090"
     ]
   },
   "config": {
+    "platform": {
+      "php": "8.5"
+    },
     "allow-plugins": {
       "craftcms/plugin-installer": true,
-      "yiisoft/yii2-composer": true
+      "pestphp/pest-plugin": true
     }
   },
   "support": {
@@ -60,12 +75,14 @@
   "extra": {
     "name": "KeyChain",
     "version": "5.0.3",
-    "schemaVersion": "1.0.1",
+    "schemaVersion": "2.0.0",
     "handle": "keychain",
     "class": "flipbox\\keychain\\KeyChain",
     "developer": "Flipbox Digital",
     "developerUrl": "https://www.flipboxdigital.com",
     "changelogUrl": "https://raw.githubusercontent.com/flipboxfactory/keychain/master/CHANGELOG.md",
     "downloadUrl": "https://github.com/flipboxfactory/keychain/archive/master.zip"
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

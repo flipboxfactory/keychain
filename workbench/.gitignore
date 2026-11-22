@@ -1,0 +1,14 @@
+.env
+!.env.example
+/vendor
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+/database/*.sqlite*
+/config/craft/project
+/config/craft/license.key
+/public/vendor
+/public/assets
+/storage
+/cms
+/public/cpresources
+/public/uploads
