@@ -20,7 +20,8 @@ return new class extends Migration
         }
 
         Schema::create(KeyChainRecord::TABLE, function (Blueprint $table) {
-            $table->id();
+            // INT, like Craft's tables and keychain tables upgraded from 5.x (MySQL foreign keys need matching types)
+            $table->integer('id', true);
             $table->text('description')->nullable()->comment('User defined description so a human can understand what this is for.');
             $table->text('key');
             $table->text('certificate');

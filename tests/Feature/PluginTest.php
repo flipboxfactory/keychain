@@ -31,3 +31,11 @@ it('resolves the service', function () {
     expect(KeyChain::getInstance()->getService())->toBeInstanceOf(KeyChainService::class)
         ->and(KeyChain::getInstance()->getService())->toBe(app(KeyChainService::class));
 });
+
+// Upgraded 5.x tables and Craft's own tables use INT ids; MySQL only accepts foreign keys between matching types
+it('creates an INT id, like Craft and keychain 5.x', function () {
+    $id = collect(Schema::getColumns(KeyChainRecord::TABLE))->firstWhere('name', 'id');
+
+    expect(strtolower($id['type_name']))->toBeIn(['int', 'integer', 'int4'])
+        ->and(strtolower($id['type']))->not->toContain('unsigned');
+});
