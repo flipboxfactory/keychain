@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## Unreleased
+
+### Fixed
+- Fresh installs create the `keychain` table's `id` as an `INT`, like Craft's tables and keychain tables upgraded from 5.x, so other plugins can add MySQL foreign keys to it. Tables created by 6.0.0-beta.1 keep their `BIGINT` id.
+
 ## 6.0.0-beta.1 - 2026-11-22
 
 ### Changed
